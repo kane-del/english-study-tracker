@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#6C63FF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="学習記録">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  <title>英語学習記録</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:     #F0F2F8;
+      --text:   #1A1D2E;
+      --sub:    #6B7280;
+      --border: #E5E7EB;
+      --accent: #6C63FF;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 84px;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: white;
+      padding: 14px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .header-left h1 { font-size: 18px; font-weight: 800; color: var(--accent); }
+    .header-left .date { font-size: 12px; color: var(--sub); margin-top: 1px; }
+    .streak-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: linear-gradient(135deg, #FFD43B, #FF922B);
+      color: white; padding: 5px 11px; border-radius: 20px;
+      font-weight: 800; font-size: 13px;
+    }
+
+    /* ── Bottom Nav ── */
+    .nav {
+      position: fixed; bottom: 0;
+      left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      background: white; border-top: 1px solid var(--border);
+      display: flex; z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    .nav-item {
+      flex: 1; padding: 10px 0 8px; text-align: center;
+      cursor: pointer; color: var(--sub); font-size: 10px; font-weight: 600;
+      user-select: none; transition: color 0.15s;
+    }
+    .nav-item.active { color: var(--accent); }
+    .nav-icon { font-size: 22px; display: block; margin-bottom: 2px; }
+
+    /* ── Pages ── */
+    .page { display: none; padding: 14px 14px 0; }
+    .page.active { display: block; }
+
+    /* ── Card ── */
+    .card {
+      background: white; border-radius: 18px;
+      padding: 16px; margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* ── Today Summary ── */
+    .today-summary { display: flex; justify-content: space-between; align-items: center; }
+    .today-summary .label { font-size: 12px; color: var(--sub); margin-bottom: 2px; }
+    .today-summary .total-time {
+      font-size: 34px; font-weight: 800; color: var(--accent);
+      font-variant-numeric: tabular-nums; letter-spacing: -1px;
+    }
+
+    /* ── Category Card ── */
+    .cat-card {
+      background: white; border-radius: 18px;
+      padding: 16px; margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-left: 5px solid; transition: box-shadow 0.2s;
+    }
+    .cat-card.running { box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+    .cat-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+    }
+    .cat-title { display: flex; align-items: center; gap: 8px; }
+    .cat-emoji { font-size: 20px; }
+    .cat-name { font-size: 16px; font-weight: 700; }
+    .running-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #FF4757; display: none; animation: blink 1s infinite;
+    }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .cat-today-label { font-size: 13px; color: var(--sub); font-weight: 600; }
+    .session-timer {
+      font-size: 36px; font-weight: 800;
+      font-variant-numeric: tabular-nums; letter-spacing: 2px;
+      margin: 6px 0 10px; line-height: 1;
+    }
+    .progress-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .progress-bar { flex: 1; height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 4px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+    .progress-label { font-size: 11px; color: var(--sub); white-space: nowrap; }
+    .timer-btn {
+      border: none; border-radius: 13px; padding: 12px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      width: 100%; transition: transform 0.1s, opacity 0.1s;
+      color: white; user-select: none;
+    }
+    .timer-btn:active { transform: scale(0.97); opacity: 0.88; }
+    .timer-btn.stop { background: #FF4757 !important; }
+
+    /* ── Stats ── */
+    .period-toggle {
+      display: flex; background: var(--border); border-radius: 12px; padding: 3px; margin-bottom: 14px;
+    }
+    .period-btn {
+      flex: 1; padding: 9px; border: none; background: transparent;
+      border-radius: 10px; font-size: 14px; font-weight: 700;
+      cursor: pointer; color: var(--sub); transition: all 0.2s;
+    }
+    .period-btn.active { background: white; color: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .section-title {
+      font-size: 11px; font-weight: 800; color: var(--sub);
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;
+    }
+    .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--sub); font-weight: 600; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .chart-wrap { position: relative; height: 210px; }
+    .history-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .history-item:last-child { border-bottom: none; }
+    .history-date { font-size: 12px; font-weight: 700; color: var(--sub); margin-bottom: 7px; }
+    .history-bars { display: flex; flex-direction: column; gap: 5px; }
+    .history-bar-row { display: flex; align-items: center; gap: 8px; }
+    .history-cat-name { font-size: 12px; color: var(--sub); width: 88px; }
+    .history-bg { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .history-fill { height: 100%; border-radius: 4px; }
+    .history-time { font-size: 11px; color: var(--sub); width: 40px; text-align: right; }
+    .no-data { text-align: center; color: var(--sub); padding: 32px 0; font-size: 14px; }
+
+    /* ── Settings ── */
+    .setting-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-name { font-size: 15px; font-weight: 700; }
+    .setting-current { font-size: 12px; color: var(--sub); margin-top: 2px; }
+    .goal-input {
+      width: 72px; padding: 8px 10px; border: 2px solid var(--border);
+      border-radius: 10px; font-size: 16px; text-align: center; outline: none;
+      font-weight: 700; transition: border-color 0.2s;
+    }
+    .goal-input:focus { border-color: var(--accent); }
+    .unit { font-size: 12px; color: var(--sub); margin-left: 4px; }
+
+    /* ── Category Management ── */
+    .cat-mgmt-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 0; border-bottom: 1px solid var(--border);
+    }
+    .cat-mgmt-row:last-of-type { border-bottom: none; }
+    .cat-mgmt-color { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+    .cat-mgmt-name { flex: 1; font-size: 15px; font-weight: 700; }
+    .del-btn {
+      border: none; background: none; cursor: pointer;
+      color: #D1D5DB; font-size: 18px; padding: 2px 6px;
+      border-radius: 8px; transition: color 0.15s, background 0.15s;
+      line-height: 1;
+    }
+    .del-btn:hover { color: #FF4757; background: #FFF0F0; }
+
+    .add-toggle-btn {
+      width: 100%; border: 2px dashed var(--border); background: none;
+      border-radius: 12px; padding: 11px; font-size: 14px; font-weight: 700;
+      color: var(--sub); cursor: pointer; margin-top: 10px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .add-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .add-form {
+      display: none; margin-top: 12px;
+      background: var(--bg); border-radius: 12px; padding: 12px;
+      flex-direction: column; gap: 10px;
+    }
+    .add-form.open { display: flex; }
+    .add-form-row { display: flex; gap: 8px; }
+    .emoji-input {
+      width: 56px; padding: 10px 8px; border: 2px solid var(--border);
+      border-radius: 10px; font-size: 20px; text-align: center; outline: none;
+      transition: border-color 0.2s;
+    }
+    .emoji-input:focus { border-color: var(--accent); }
+    .name-input {
+      flex: 1; padding: 10px 12px; border: 2px solid var(--border);
+      border-radius: 10px; font-size: 15px; outline: none;
+      font-weight: 700; transition: border-color 0.2s;
+    }
+    .name-input:focus { border-color: var(--accent); }
+    .add-confirm-btn {
+      background: var(--accent); color: white; border: none;
+      border-radius: 10px; padding: 11px; font-size: 15px;
+      font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+    }
+    .add-confirm-btn:active { opacity: 0.8; }
+
+    .save-btn {
+      background: var(--accent); color: white; border: none;
+      border-radius: 14px; padding: 15px; font-size: 16px;
+      font-weight: 700; width: 100%; cursor: pointer;
+      margin-top: 16px; transition: opacity 0.2s;
+    }
+    .save-btn:active { opacity: 0.85; }
+    .danger-btn {
+      background: transparent; color: #FF4757; border: 2px solid #FF4757;
+      border-radius: 14px; padding: 13px; font-size: 15px;
+      font-weight: 700; width: 100%; cursor: pointer;
+      margin-top: 10px; transition: all 0.2s;
+    }
+    .danger-btn:active { background: #FF4757; color: white; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%);
+      background: rgba(26,29,46,0.88); backdrop-filter: blur(8px);
+      color: white; padding: 10px 20px; border-radius: 24px;
+      font-size: 14px; font-weight: 600; z-index: 500;
+      opacity: 0; transition: opacity 0.25s; pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <h1>英語学習記録</h1>
+    <div class="date" id="header-date"></div>
+  </div>
+  <div id="streak-area"></div>
+</header>
+
+<!-- Page: Timer -->
+<div id="page-timer" class="page active">
+  <div class="card" style="margin-bottom:12px;">
+    <div class="today-summary">
+      <div>
+        <div class="label">今日の合計学習時間</div>
+        <div class="total-time" id="total-today">0:00:00</div>
+      </div>
+    </div>
+  </div>
+  <div id="cat-cards"></div>
+</div>
+
+<!-- Page: Stats -->
+<div id="page-stats" class="page">
+  <div class="period-toggle">
+    <button class="period-btn active" id="btn-week" onclick="setPeriod('week')">週間</button>
+    <button class="period-btn" id="btn-month" onclick="setPeriod('month')">月間</button>
+  </div>
+  <div class="card">
+    <div class="section-title">カテゴリ別学習時間（分）</div>
+    <div class="legend" id="chart-legend"></div>
+    <div class="chart-wrap"><canvas id="main-chart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="section-title">日別履歴</div>
+    <div id="history-list"></div>
+  </div>
+</div>
+
+<!-- Page: Settings -->
+<div id="page-settings" class="page">
+  <!-- Category management -->
+  <div class="card">
+    <div class="section-title">カテゴリ管理</div>
+    <div id="cat-mgmt-list"></div>
+    <button class="add-toggle-btn" id="add-toggle" onclick="toggleAddForm()">＋ カテゴリを追加</button>
+    <div class="add-form" id="add-form">
+      <div class="add-form-row">
+        <input type="text" class="emoji-input" id="new-emoji" placeholder="📝" maxlength="2">
+        <input type="text" class="name-input" id="new-name" placeholder="カテゴリ名" maxlength="12">
+      </div>
+      <button class="add-confirm-btn" onclick="addCategory()">追加する</button>
+    </div>
+  </div>
+
+  <!-- Goal settings -->
+  <div class="card">
+    <div class="section-title">1日の目標時間（分）</div>
+    <div id="goal-rows"></div>
+    <button class="save-btn" onclick="saveGoals()">保存する</button>
+  </div>
+
+  <!-- Data ops -->
+  <div class="card">
+    <div class="section-title">データ管理</div>
+    <button class="danger-btn" onclick="doExport()">JSONでエクスポート</button>
+    <button class="danger-btn" style="border-color:#aaa;color:#aaa;margin-top:8px;" onclick="doReset()">
+      すべてのデータをリセット
+    </button>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nav-item active" onclick="showPage('timer',this)">
+    <span class="nav-icon">⏱</span>記録
+  </div>
+  <div class="nav-item" onclick="showPage('stats',this)">
+    <span class="nav-icon">📊</span>統計
+  </div>
+  <div class="nav-item" onclick="showPage('settings',this)">
+    <span class="nav-icon">⚙️</span>設定
+  </div>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─── Color palette (cycles when adding new categories) ─── */
+const PALETTE = [
+  '#4C6EF5','#40C057','#FD7E14','#845EF7',
+  '#F03E3E','#20C997','#F59F00','#1C7ED6',
+  '#D6336C','#7950F2','#0CA678','#E67700',
+];
+
+const DEFAULT_CATS = [
+  { key: '単語',          emoji: '📖', color: '#4C6EF5' },
+  { key: 'シャドーイング',  emoji: '🎧', color: '#40C057' },
+  { key: '英会話',        emoji: '💬', color: '#FD7E14' },
+  { key: 'ライティング',   emoji: '✍️', color: '#845EF7' },
+];
+
+/* ─── State ─── */
+let CATS     = [];
+let sessions = [];
+let goals    = {};
+let running  = null;   // { key, startMs }
+let tickId   = null;
+let chart    = null;
+let period   = 'week';
+
+/* ─── Persistence ─── */
+function load() {
+  CATS     = JSON.parse(localStorage.getItem('es_cats')     || JSON.stringify(DEFAULT_CATS));
+  sessions = JSON.parse(localStorage.getItem('es_sessions') || '[]');
+  goals    = JSON.parse(localStorage.getItem('es_goals')    || JSON.stringify({
+    '単語': 1800, 'シャドーイング': 1200, '英会話': 1800, 'ライティング': 1200,
+  }));
+}
+function saveCats()     { localStorage.setItem('es_cats',     JSON.stringify(CATS));     }
+function saveSessions() { localStorage.setItem('es_sessions', JSON.stringify(sessions)); }
+function saveGoalsLS()  { localStorage.setItem('es_goals',    JSON.stringify(goals));    }
+
+/* ─── Helpers ─── */
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function pad(n) { return String(n).padStart(2,'0'); }
+
+function fmtTime(s) {
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${m}:${pad(sec)}`;
+}
+function fmtMin(s) {
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+  if (h > 0) return m > 0 ? `${h}時間${m}分` : `${h}時間`;
+  return `${m}分`;
+}
+
+function todayTotal(catKey) {
+  const t = today();
+  return sessions.filter(s => s.date === t && s.category === catKey)
+                 .reduce((a, s) => a + s.duration, 0);
+}
+function runningElapsed() {
+  return running ? Math.floor((Date.now() - running.startMs) / 1000) : 0;
+}
+function streak() {
+  const days = [...new Set(sessions.map(s => s.date))].sort().reverse();
+  if (!days.length) return 0;
+  let n = 0, check = today();
+  for (let i = 0; i < 400; i++) {
+    if (days.includes(check)) { n++; check = prevDay(check); }
+    else if (i === 0)          { check = prevDay(check); }
+    else break;
+  }
+  return n;
+}
+function prevDay(d) {
+  const dt = new Date(d); dt.setDate(dt.getDate() - 1);
+  return dt.toISOString().split('T')[0];
+}
+function fmtDateLabel(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${d.getMonth()+1}/${d.getDate()}（${ ['日','月','火','水','木','金','土'][d.getDay()] }）`;
+}
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function nextColor() {
+  const used = new Set(CATS.map(c => c.color));
+  return PALETTE.find(p => !used.has(p)) || PALETTE[CATS.length % PALETTE.length];
+}
+
+/* ─── Init ─── */
+function init() {
+  load();
+  updateHeader();
+  buildCatCards();
+  renderCatMgmt();
+  buildGoalRows();
+  updateTimerPage();
+}
+
+function updateHeader() {
+  const d = new Date();
+  const wd = ['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'][d.getDay()];
+  document.getElementById('header-date').textContent =
+    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${wd}）`;
+  const s = streak();
+  document.getElementById('streak-area').innerHTML =
+    s > 0 ? `<div class="streak-badge">🔥 ${s}日連続</div>` : '';
+}
+
+/* ─── Timer Page ─── */
+function buildCatCards() {
+  document.getElementById('cat-cards').innerHTML = CATS.map(c => `
+    <div class="cat-card" id="card-${esc(c.key)}" style="border-color:${c.color};">
+      <div class="cat-header">
+        <div class="cat-title">
+          <span class="cat-emoji">${c.emoji}</span>
+          <span class="cat-name">${esc(c.key)}</span>
+          <span class="running-dot" id="dot-${esc(c.key)}"></span>
+        </div>
+        <span class="cat-today-label" id="today-lbl-${esc(c.key)}">今日: 0分</span>
+      </div>
+      <div class="session-timer" id="sess-${esc(c.key)}" style="color:${c.color};">0:00</div>
+      <div class="progress-row">
+        <div class="progress-bar">
+          <div class="progress-fill" id="prog-${esc(c.key)}" style="background:${c.color};width:0%;"></div>
+        </div>
+        <span class="progress-label" id="prog-lbl-${esc(c.key)}"></span>
+      </div>
+      <button class="timer-btn" id="btn-${esc(c.key)}" data-key="${esc(c.key)}"
+        style="background:${c.color};"
+        onclick="toggleTimer(this.dataset.key)">スタート</button>
+    </div>
+  `).join('');
+}
+
+function updateTimerPage() {
+  let grandTotal = 0;
+  CATS.forEach(c => {
+    const saved    = todayTotal(c.key);
+    const live     = running && running.key === c.key ? runningElapsed() : 0;
+    const combined = saved + live;
+    grandTotal += combined;
+
+    const goal = goals[c.key] || 0;
+    const pct  = goal > 0 ? Math.min(100, combined / goal * 100).toFixed(1) : 0;
+
+    const k = esc(c.key);
+    document.getElementById(`today-lbl-${k}`).textContent = `今日: ${fmtMin(combined)}`;
+    document.getElementById(`prog-${k}`).style.width      = `${pct}%`;
+    document.getElementById(`prog-lbl-${k}`).textContent  =
+      goal > 0 ? `${fmtMin(combined)} / ${fmtMin(goal)}` : fmtMin(combined);
+
+    if (running && running.key === c.key)
+      document.getElementById(`sess-${k}`).textContent = fmtTime(live);
+  });
+  document.getElementById('total-today').textContent = fmtTime(grandTotal);
+}
+
+/* ─── Timer Control ─── */
+function toggleTimer(key) {
+  if (running && running.key === key) stopTimer();
+  else { if (running) stopTimer(); startTimer(key); }
+}
+
+function startTimer(key) {
+  running = { key, startMs: Date.now() };
+  const k = esc(key);
+  document.getElementById(`card-${k}`).classList.add('running');
+  document.getElementById(`dot-${k}`).style.display = 'block';
+  document.getElementById(`btn-${k}`).textContent   = 'ストップ';
+  document.getElementById(`btn-${k}`).classList.add('stop');
+  tickId = setInterval(() => {
+    document.getElementById(`sess-${k}`).textContent = fmtTime(runningElapsed());
+    updateTimerPage();
+  }, 1000);
+}
+
+function stopTimer() {
+  if (!running) return;
+  clearInterval(tickId);
+  const { key, startMs } = running;
+  const elapsed = Math.floor((Date.now() - startMs) / 1000);
+  if (elapsed > 0) {
+    sessions.push({ date: today(), category: key, duration: elapsed });
+    saveSessions();
+    showToast(`${fmtMin(elapsed)} 記録しました ✓`);
+  }
+  running = null;
+  const k = esc(key);
+  document.getElementById(`card-${k}`).classList.remove('running');
+  document.getElementById(`dot-${k}`).style.display = 'none';
+  document.getElementById(`sess-${k}`).textContent  = '0:00';
+  document.getElementById(`btn-${k}`).textContent   = 'スタート';
+  document.getElementById(`btn-${k}`).classList.remove('stop');
+  updateTimerPage();
+  updateHeader();
+}
+
+/* ─── Page Switching ─── */
+function showPage(page, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  navEl.classList.add('active');
+  if (page === 'stats')    renderStats();
+  if (page === 'settings') { renderCatMgmt(); buildGoalRows(); }
+}
+
+/* ─── Stats ─── */
+function setPeriod(p) {
+  period = p;
+  document.getElementById('btn-week').classList.toggle('active',  p === 'week');
+  document.getElementById('btn-month').classList.toggle('active', p === 'month');
+  renderStats();
+}
+
+function dateRange() {
+  const n = period === 'week' ? 7 : 30, r = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    r.push(d.toISOString().split('T')[0]);
+  }
+  return r;
+}
+
+function buildDataMap(dates) {
+  /* Gather all categories that appear in sessions within the date range,
+     union with current CATS, so deleted-but-historical data still renders. */
+  const dateSet = new Set(dates);
+  const catKeys = new Set(CATS.map(c => c.key));
+  sessions.filter(s => dateSet.has(s.date)).forEach(s => catKeys.add(s.category));
+
+  const allCats = [...catKeys].map(k => CATS.find(c => c.key === k) || { key: k, emoji: '❓', color: '#9CA3AF' });
+  const map = {};
+  dates.forEach(d => { map[d] = {}; allCats.forEach(c => map[d][c.key] = 0); });
+  sessions.forEach(s => { if (map[s.date]) map[s.date][s.category] = (map[s.date][s.category]||0) + s.duration; });
+  return { map, allCats };
+}
+
+function renderStats() {
+  const dates = dateRange();
+  const { map, allCats } = buildDataMap(dates);
+
+  document.getElementById('chart-legend').innerHTML = allCats.map(c => `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${c.color};"></div>${esc(c.key)}
+    </div>`).join('');
+
+  const labels = dates.map(d => {
+    const dt = new Date(d + 'T00:00:00');
+    const wd = ['日','月','火','水','木','金','土'][dt.getDay()];
+    return period === 'week' ? [`${dt.getMonth()+1}/${dt.getDate()}`, wd] : `${dt.getDate()}`;
+  });
+
+  const ctx = document.getElementById('main-chart').getContext('2d');
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: allCats.map(c => ({
+        label: c.key,
+        data: dates.map(d => +(map[d][c.key] / 60).toFixed(1)),
+        backgroundColor: c.color + 'CC',
+        borderColor: c.color,
+        borderWidth: 1, borderRadius: 4,
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}分` } } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: { stacked: true, ticks: { font: { size: 10 } }, title: { display: true, text: '分', font: { size: 11 } } }
+      }
+    }
+  });
+
+  const listEl = document.getElementById('history-list');
+  const activeDates = [...dates].reverse().filter(d => allCats.some(c => map[d][c.key] > 0));
+  if (!activeDates.length) { listEl.innerHTML = '<div class="no-data">📭 まだ記録がありません</div>'; return; }
+
+  const maxTotal = Math.max(...activeDates.map(d => allCats.reduce((s, c) => s + map[d][c.key], 0)));
+  listEl.innerHTML = activeDates.map(d => {
+    const dayTotal = allCats.reduce((s, c) => s + map[d][c.key], 0);
+    const bars = allCats.filter(c => map[d][c.key] > 0).map(c => {
+      const pct = maxTotal > 0 ? (map[d][c.key] / maxTotal * 100).toFixed(1) : 0;
+      return `<div class="history-bar-row">
+        <span class="history-cat-name">${c.emoji} ${esc(c.key)}</span>
+        <div class="history-bg"><div class="history-fill" style="background:${c.color};width:${pct}%;"></div></div>
+        <span class="history-time">${fmtMin(map[d][c.key])}</span>
+      </div>`;
+    }).join('');
+    return `<div class="history-item">
+      <div class="history-date">${fmtDateLabel(d)} — 合計 ${fmtMin(dayTotal)}</div>
+      <div class="history-bars">${bars}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ─── Category Management ─── */
+function renderCatMgmt() {
+  document.getElementById('cat-mgmt-list').innerHTML = CATS.map(c => `
+    <div class="cat-mgmt-row">
+      <div class="cat-mgmt-color" style="background:${c.color};"></div>
+      <span style="font-size:18px;">${c.emoji}</span>
+      <span class="cat-mgmt-name">${esc(c.key)}</span>
+      <button class="del-btn" data-key="${esc(c.key)}" onclick="deleteCategory(this.dataset.key)" title="削除">✕</button>
+    </div>`).join('');
+}
+
+function toggleAddForm() {
+  const form = document.getElementById('add-form');
+  form.classList.toggle('open');
+  if (form.classList.contains('open')) document.getElementById('new-name').focus();
+}
+
+function addCategory() {
+  const emojiEl = document.getElementById('new-emoji');
+  const nameEl  = document.getElementById('new-name');
+  const name    = nameEl.value.trim();
+  const emoji   = emojiEl.value.trim() || '📝';
+
+  if (!name) { nameEl.focus(); showToast('カテゴリ名を入力してください'); return; }
+  if (CATS.some(c => c.key === name)) { showToast('同じ名前のカテゴリが既にあります'); return; }
+
+  CATS.push({ key: name, emoji, color: nextColor() });
+  saveCats();
+  renderCatMgmt();
+  buildGoalRows();
+  buildCatCards();
+  updateTimerPage();
+
+  emojiEl.value = '';
+  nameEl.value  = '';
+  document.getElementById('add-form').classList.remove('open');
+  showToast(`「${name}」を追加しました ✓`);
+}
+
+function deleteCategory(key) {
+  if (CATS.length <= 1) { showToast('最低1つのカテゴリが必要です'); return; }
+  if (!confirm(`「${key}」と、その記録データをすべて削除しますか？`)) return;
+
+  if (running && running.key === key) stopTimer();
+
+  CATS     = CATS.filter(c => c.key !== key);
+  sessions = sessions.filter(s => s.category !== key);
+  delete goals[key];
+
+  saveCats(); saveSessions(); saveGoalsLS();
+  renderCatMgmt();
+  buildGoalRows();
+  buildCatCards();
+  updateTimerPage();
+  showToast(`「${key}」を削除しました`);
+}
+
+/* ─── Goal Settings ─── */
+function buildGoalRows() {
+  document.getElementById('goal-rows').innerHTML = CATS.map(c => `
+    <div class="setting-row">
+      <div>
+        <div class="setting-name">${c.emoji} ${esc(c.key)}</div>
+        <div class="setting-current" id="goal-cur-${esc(c.key)}">現在: ${fmtMin(goals[c.key]||0)}/日</div>
+      </div>
+      <div style="display:flex;align-items:center;">
+        <input type="number" class="goal-input" id="goal-in-${esc(c.key)}"
+          value="${Math.round((goals[c.key]||0)/60)}" min="0" max="480"
+          style="border-color:${c.color};">
+        <span class="unit">分</span>
+      </div>
+    </div>`).join('');
+}
+
+function saveGoals() {
+  CATS.forEach(c => {
+    const v = parseInt(document.getElementById(`goal-in-${esc(c.key)}`).value || '0');
+    goals[c.key] = v * 60;
+    document.getElementById(`goal-cur-${esc(c.key)}`).textContent = `現在: ${fmtMin(goals[c.key])}/日`;
+  });
+  saveGoalsLS();
+  updateTimerPage();
+  showToast('目標を保存しました ✓');
+}
+
+/* ─── Data Ops ─── */
+function doExport() {
+  const blob = new Blob(
+    [JSON.stringify({ cats: CATS, sessions, goals, exported: new Date().toISOString() }, null, 2)],
+    { type: 'application/json' }
+  );
+  const a = Object.assign(document.createElement('a'),
+    { href: URL.createObjectURL(blob), download: `study-${today()}.json` });
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+function doReset() {
+  if (!confirm('カテゴリの設定も含め、すべてのデータをリセットします。よろしいですか？')) return;
+  CATS     = JSON.parse(JSON.stringify(DEFAULT_CATS));
+  sessions = [];
+  goals    = { '単語': 1800, 'シャドーイング': 1200, '英会話': 1800, 'ライティング': 1200 };
+  saveCats(); saveSessions(); saveGoalsLS();
+  buildCatCards(); renderCatMgmt(); buildGoalRows(); updateTimerPage(); updateHeader();
+  showToast('データをリセットしました');
+}
+
+/* ─── Toast ─── */
+let toastTimer;
+function showToast(msg) {
+  clearTimeout(toastTimer);
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ─── Enter key for add form ─── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('add-form').classList.contains('open')) addCategory();
+});
+
+init();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+</script>
+</body>
+</html>

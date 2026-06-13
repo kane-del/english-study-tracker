@@ -1,0 +1,13 @@
+{
+  "name": "英語学習記録",
+  "short_name": "学習記録",
+  "description": "英語の勉強時間を記録するアプリ",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F0F2F8",
+  "theme_color": "#6C63FF",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
