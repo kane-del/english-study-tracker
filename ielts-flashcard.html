@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>瞬間英作文 IELTS</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2563EB;--blue-dark:#1D4ED8;--blue-light:#EFF6FF;
+  --green:#16A34A;--yellow:#D97706;--red:#DC2626;
+  --gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;
+  --gray-500:#6B7280;--gray-700:#374151;--gray-900:#111827;
+  --radius:12px;--shadow:0 2px 8px rgba(0,0,0,.12);
+}
+body{font-family:'Helvetica Neue',Arial,'Hiragino Sans',sans-serif;
+  background:#F8FAFC;color:var(--gray-900);min-height:100vh;
+  display:flex;flex-direction:column;max-width:600px;margin:0 auto;
+  padding:0 0 80px}
+
+/* ── HEADER ── */
+#app-header{
+  background:var(--blue);color:#fff;padding:16px 20px;
+  display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 8px rgba(37,99,235,.4)}
+#app-header h1{font-size:18px;font-weight:700;flex:1}
+#btn-back{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;
+  padding:4px 8px;display:none}
+#btn-stats{background:rgba(255,255,255,.2);border:none;color:#fff;
+  font-size:13px;padding:6px 12px;border-radius:20px;cursor:pointer}
+
+/* ── SCREENS ── */
+.screen{display:none;padding:20px}
+.screen.active{display:block}
+
+/* ── HOME SCREEN ── */
+.topic-grid{display:flex;flex-direction:column;gap:12px}
+.topic-card{
+  background:#fff;border-radius:var(--radius);padding:16px 20px;
+  box-shadow:var(--shadow);cursor:pointer;
+  display:flex;align-items:center;gap:16px;
+  border:2px solid transparent;transition:.15s}
+.topic-card:active{border-color:var(--blue);background:var(--blue-light)}
+.topic-icon{font-size:28px;width:48px;text-align:center}
+.topic-info{flex:1}
+.topic-name{font-size:17px;font-weight:700}
+.topic-sub{font-size:13px;color:var(--gray-500);margin-top:2px}
+.topic-progress{text-align:right}
+.prog-ring{width:44px;height:44px;position:relative}
+.prog-ring svg{transform:rotate(-90deg)}
+.prog-ring circle{fill:none;stroke-width:4}
+.prog-bg{stroke:var(--gray-200)}
+.prog-fill{stroke:var(--blue);transition:stroke-dashoffset .3s}
+.prog-pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:11px;font-weight:700;color:var(--blue)}
+
+/* ── TOPIC SCREEN ── */
+#screen-topic h2{font-size:20px;font-weight:700;margin-bottom:6px}
+#screen-topic .topic-desc{font-size:14px;color:var(--gray-500);margin-bottom:20px}
+.section-title{font-size:13px;font-weight:700;color:var(--gray-500);
+  text-transform:uppercase;letter-spacing:.05em;margin:16px 0 8px}
+.study-btn{
+  width:100%;padding:14px 20px;border-radius:var(--radius);
+  border:none;font-size:15px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:12px;margin-bottom:10px;
+  transition:.15s}
+.study-btn:active{opacity:.8}
+.study-btn.primary{background:var(--blue);color:#fff}
+.study-btn.secondary{background:#fff;color:var(--gray-900);
+  border:2px solid var(--gray-200);box-shadow:var(--shadow)}
+.study-btn .btn-icon{font-size:20px}
+.study-btn .btn-text{flex:1;text-align:left}
+.study-btn .btn-count{background:rgba(255,255,255,.25);
+  padding:2px 8px;border-radius:10px;font-size:12px}
+.study-btn.secondary .btn-count{background:var(--gray-100);color:var(--gray-700)}
+
+.subtopic-list{display:flex;flex-direction:column;gap:8px}
+.subtopic-item{
+  background:#fff;border-radius:var(--radius);padding:14px 16px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  box-shadow:var(--shadow);border:2px solid transparent;transition:.15s}
+.subtopic-item:active{border-color:var(--blue);background:var(--blue-light)}
+.subtopic-name{flex:1;font-size:15px;font-weight:600}
+.subtopic-count{font-size:13px;color:var(--gray-500)}
+.subtopic-due{font-size:12px;padding:2px 8px;border-radius:10px;
+  background:var(--blue-light);color:var(--blue);font-weight:600}
+
+/* ── GRAMMAR SCREEN ── */
+.grammar-cards{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.grammar-card{
+  background:#fff;border-radius:var(--radius);padding:14px 16px;
+  box-shadow:var(--shadow);cursor:pointer;transition:.15s;
+  border:2px solid transparent}
+.grammar-card:active{border-color:var(--blue)}
+.grammar-card h3{font-size:15px;font-weight:700;margin-bottom:4px}
+.grammar-card p{font-size:13px;color:var(--gray-500);line-height:1.5}
+.grammar-card .gram-badge{
+  display:inline-block;font-size:11px;font-weight:700;
+  padding:2px 8px;border-radius:10px;margin-top:6px}
+.gram-rel{background:#FEF3C7;color:#92400E}
+.gram-part{background:#ECFDF5;color:#065F46}
+
+/* ── STUDY SCREEN ── */
+#screen-study{padding:16px;display:flex;flex-direction:column;min-height:calc(100vh - 60px)}
+.study-meta{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.study-meta .meta-topic{font-size:12px;font-weight:700;color:var(--blue);
+  background:var(--blue-light);padding:3px 10px;border-radius:10px}
+.study-meta .meta-sub{font-size:12px;color:var(--gray-500)}
+.study-meta .meta-progress{margin-left:auto;font-size:13px;font-weight:700;color:var(--gray-700)}
+
+.progress-bar-wrap{height:4px;background:var(--gray-200);border-radius:2px;margin-bottom:20px}
+.progress-bar{height:100%;background:var(--blue);border-radius:2px;transition:width .3s}
+
+.card-area{
+  background:#fff;border-radius:16px;padding:32px 24px;
+  box-shadow:0 4px 20px rgba(0,0,0,.1);flex:1;
+  display:flex;flex-direction:column;min-height:300px}
+.card-japanese{
+  font-size:20px;line-height:1.7;font-weight:500;
+  text-align:center;flex:1;display:flex;align-items:center;justify-content:center;
+  color:var(--gray-900)}
+.card-english{
+  display:none;padding-top:20px;border-top:2px solid var(--gray-200);
+  margin-top:20px}
+.card-english .en-text{
+  font-size:17px;line-height:1.7;color:var(--gray-700);text-align:center}
+.card-english .hint{
+  font-size:12px;color:var(--gray-500);text-align:center;margin-top:8px}
+mark.rel{background:#FEF3C7;color:#92400E;padding:0 2px;border-radius:3px}
+mark.part{background:#ECFDF5;color:#065F46;padding:0 2px;border-radius:3px}
+
+.reveal-btn{
+  width:100%;margin-top:20px;padding:16px;
+  background:var(--blue);color:#fff;border:none;border-radius:var(--radius);
+  font-size:16px;font-weight:700;cursor:pointer;transition:.15s}
+.reveal-btn:active{background:var(--blue-dark)}
+
+.rating-area{display:none;margin-top:16px;gap:12px;flex-direction:column}
+.rating-row{display:flex;gap:10px}
+.rating-btn{
+  flex:1;padding:14px 8px;border:none;border-radius:var(--radius);
+  font-size:20px;font-weight:700;cursor:pointer;transition:.15s;line-height:1}
+.rating-btn:active{transform:scale(.96)}
+.rating-btn .label{font-size:11px;display:block;font-weight:600;margin-top:4px}
+.btn-again{background:#FEE2E2;color:var(--red)}
+.btn-hard{background:#FEF3C7;color:var(--yellow)}
+.btn-good{background:#DCFCE7;color:var(--green)}
+
+/* ── DONE SCREEN ── */
+#screen-done{padding:32px 20px;text-align:center}
+.done-emoji{font-size:60px;margin-bottom:16px}
+.done-title{font-size:24px;font-weight:800;margin-bottom:8px}
+.done-sub{font-size:15px;color:var(--gray-500);margin-bottom:32px}
+.done-stats{
+  background:#fff;border-radius:var(--radius);padding:20px;
+  box-shadow:var(--shadow);margin-bottom:24px;text-align:left}
+.done-stat-row{display:flex;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid var(--gray-200)}
+.done-stat-row:last-child{border-bottom:none}
+.done-stat-label{color:var(--gray-500)}
+.done-stat-val{font-weight:700}
+
+/* ── STATS SCREEN ── */
+#screen-stats{padding:20px}
+#screen-stats h2{font-size:20px;font-weight:700;margin-bottom:20px}
+.stats-topic{
+  background:#fff;border-radius:var(--radius);padding:16px;
+  box-shadow:var(--shadow);margin-bottom:12px}
+.stats-topic-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.stats-topic-name{font-size:15px;font-weight:700;flex:1}
+.stats-bars{display:flex;flex-direction:column;gap:6px}
+.stats-bar-row{display:flex;align-items:center;gap:8px}
+.stats-bar-label{font-size:12px;color:var(--gray-500);width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stats-bar-outer{flex:1;height:8px;background:var(--gray-200);border-radius:4px}
+.stats-bar-inner{height:100%;border-radius:4px;background:var(--blue);transition:width .3s}
+.stats-bar-count{font-size:12px;color:var(--gray-700);font-weight:600;width:28px;text-align:right}
+
+/* ── LIST VIEW ── */
+#screen-list{padding:0;display:flex;flex-direction:column}
+.list-toolbar{
+  padding:12px 16px;background:#fff;border-bottom:1px solid var(--gray-200);
+  display:flex;align-items:center;gap:10px;position:sticky;top:60px;z-index:50}
+.list-toolbar-label{font-size:13px;font-weight:700;color:var(--gray-700);flex:1}
+.list-toggle-btn{
+  background:var(--blue-light);color:var(--blue);border:none;
+  font-size:12px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer}
+.list-flash-btn{
+  background:var(--blue);color:#fff;border:none;
+  font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;cursor:pointer}
+.list-cards{padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.list-card{
+  background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow:hidden;border:2px solid transparent;transition:.15s}
+.list-card.checked{border-color:#D1FAE5}
+.list-card-inner{padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.list-check{
+  width:22px;height:22px;border-radius:50%;border:2px solid var(--gray-300);
+  flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:13px;transition:.15s;margin-top:2px}
+.list-check.done{background:var(--green);border-color:var(--green);color:#fff}
+.list-content{flex:1}
+.list-jp{font-size:16px;font-weight:500;line-height:1.7;color:var(--gray-900);margin-bottom:8px}
+.list-en{font-size:14px;line-height:1.7;color:var(--blue-dark);font-style:italic}
+.list-en.hidden{display:none}
+.list-badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.list-badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+.list-num{font-size:11px;color:var(--gray-500);flex-shrink:0;margin-top:4px;width:22px;text-align:right}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--gray-500)}
+.empty-state .emoji{font-size:48px;margin-bottom:12px}
+.empty-state p{font-size:15px;line-height:1.6}
+
+/* ── BOTTOM NAV ── */
+#bottom-nav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:600px;
+  background:#fff;border-top:1px solid var(--gray-200);
+  display:flex;padding:8px 0 env(safe-area-inset-bottom)}
+.nav-btn{
+  flex:1;background:none;border:none;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  font-size:11px;color:var(--gray-500);cursor:pointer;padding:6px 0}
+.nav-btn.active{color:var(--blue)}
+.nav-icon{font-size:22px}
+</style>
+</head>
+<body>
+
+<div id="app-header">
+  <button id="btn-back" onclick="goBack()">‹</button>
+  <h1 id="header-title">瞬間英作文 IELTS</h1>
+  <button id="btn-stats" onclick="showScreen('stats')">📊</button>
+</div>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="topic-grid" id="topic-grid"></div>
+</div>
+
+<!-- TOPIC -->
+<div id="screen-topic" class="screen">
+  <h2 id="topic-title"></h2>
+  <p class="topic-desc" id="topic-desc"></p>
+  <div class="section-title">ステップ 1 — まず覚える</div>
+  <button class="study-btn secondary" onclick="openListView()">
+    <span class="btn-icon">📋</span>
+    <span class="btn-text">一覧で確認（日本語＋英語）</span>
+    <span class="btn-count" id="study-all-count2"></span>
+  </button>
+  <div class="section-title">ステップ 2 — フラッシュカード</div>
+  <button class="study-btn primary" onclick="startStudy()">
+    <span class="btn-icon">⚡</span>
+    <span class="btn-text">すべてのカードを暗記テスト</span>
+    <span class="btn-count" id="study-all-count"></span>
+  </button>
+  <button class="study-btn secondary" onclick="startDueOnly()">
+    <span class="btn-icon">⏰</span>
+    <span class="btn-text">復習が必要なカード</span>
+    <span class="btn-count" id="study-due-count"></span>
+  </button>
+  <div id="grammar-section" style="display:none">
+    <div class="section-title">文法ドリル</div>
+    <div class="grammar-cards">
+      <div class="grammar-card" onclick="startGrammar('relative_pronoun')">
+        <h3>関係代名詞 (Relative Pronouns)</h3>
+        <p>who / whom / whose / which / that を使った関係節を含む例文を練習します。</p>
+        <span class="gram-badge gram-rel" id="count-rel"></span>
+      </div>
+      <div class="grammar-card" onclick="startGrammar('participial')">
+        <h3>分詞構文 (Participial Constructions)</h3>
+        <p>現在分詞・過去分詞で始まる副詞句を含む例文を練習します。</p>
+        <span class="gram-badge gram-part" id="count-part"></span>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">サブトピック別</div>
+  <div class="subtopic-list" id="subtopic-list"></div>
+</div>
+
+<!-- STUDY -->
+<div id="screen-study" class="screen" style="display:none">
+  <div class="study-meta">
+    <span class="meta-topic" id="meta-topic"></span>
+    <span class="meta-sub" id="meta-sub"></span>
+    <span class="meta-progress" id="meta-progress"></span>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+  <div class="card-area">
+    <div class="card-japanese" id="card-japanese"></div>
+    <div class="card-english" id="card-english">
+      <div class="en-text" id="en-text"></div>
+      <div class="hint" id="hint-text"></div>
+    </div>
+  </div>
+  <button class="reveal-btn" id="reveal-btn" onclick="revealAnswer()">答えを見る</button>
+  <div class="rating-area" id="rating-area">
+    <div class="rating-row">
+      <button class="rating-btn btn-again" onclick="rate(0)">
+        ✗<span class="label">もう一度</span>
+      </button>
+      <button class="rating-btn btn-hard" onclick="rate(1)">
+        △<span class="label">難しい</span>
+      </button>
+      <button class="rating-btn btn-good" onclick="rate(2)">
+        ○<span class="label">覚えた</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DONE -->
+<div id="screen-done" class="screen" style="display:none">
+  <div class="done-emoji">🎉</div>
+  <div class="done-title">セッション完了！</div>
+  <div class="done-sub" id="done-sub"></div>
+  <div class="done-stats" id="done-stats"></div>
+  <button class="study-btn primary" onclick="showScreen('home')" style="margin-bottom:12px">
+    <span class="btn-icon">🏠</span>
+    <span class="btn-text">ホームに戻る</span>
+  </button>
+  <button class="study-btn secondary" onclick="replaySession()">
+    <span class="btn-icon">🔄</span>
+    <span class="btn-text">もう一度学習</span>
+  </button>
+</div>
+
+<!-- LIST VIEW -->
+<div id="screen-list" class="screen" style="display:none">
+  <div class="list-toolbar">
+    <span class="list-toolbar-label" id="list-toolbar-label"></span>
+    <button class="list-toggle-btn" id="list-toggle-btn" onclick="toggleAllEN()">英語を隠す</button>
+    <button class="list-flash-btn" onclick="startFlashFromList()">⚡ 暗記テスト</button>
+  </div>
+  <div class="list-cards" id="list-cards"></div>
+</div>
+
+<!-- STATS -->
+<div id="screen-stats" class="screen" style="display:none">
+  <h2>📊 学習進捗</h2>
+  <div id="stats-content"></div>
+</div>
+
+<div id="bottom-nav">
+  <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">
+    <span class="nav-icon">🏠</span>ホーム
+  </button>
+  <button class="nav-btn" id="nav-stats" onclick="showScreen('stats')">
+    <span class="nav-icon">📊</span>進捗
+  </button>
+</div>
+
+<script>
+const CARDS = [{"id":0,"english":"Most people use smartphones on a daily  basis for communication and entertainment.","japanese":"ほとんどの人が、連絡や娯楽のために日常的にスマートフォンを使っています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Smartphones","grammarTags":[]},{"id":1,"english":"Many students use smartphones to research  information for school projects.","japanese":"多くの学生が学校の課題の調べ物にスマホを利用しています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Smartphones","grammarTags":[]},{"id":2,"english":"Smartphone cameras are now powerful  enough to replace digital cameras.","japanese":"スマホのカメラは今やデジカメを代替できるほど高性能です。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Smartphones","grammarTags":[]},{"id":3,"english":"Some people upgrade their smartphones  every year to get the latest features.","japanese":"最新機能を得るために毎年スマホを買い替える人もいます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Smartphones","grammarTags":[]},{"id":4,"english":"Some people develop an addiction to their  smartphones and begin to neglect real-life  interactions.","japanese":"一部の人々はスマートフォンへの依存を深め、現実世界での人間関係をおろそかにするようになります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Smartphones","grammarTags":[]},{"id":5,"english":"Many people use social media to stay  connected with friends and family.","japanese":"多くの人が、友人や家族とつながるためにSNSを利用しています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Social Media","grammarTags":[]},{"id":6,"english":"Social media allows users to share photos,  videos, and opinions instantly.","japanese":"SNSは、写真や動画、意見を瞬時に共有することを可能にします。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Social Media","grammarTags":[]},{"id":7,"english":"Social platforms help people find  communities with shared interests.","japanese":"SNSは共通の興味を持つ人々が集まるコミュニティを見つける助けになります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Social Media","grammarTags":[]},{"id":8,"english":"Companies use social media to promote their  products and services.","japanese":"企業は自社の商品やサービスを宣伝するためにSNSを活用しています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Social Media","grammarTags":[]},{"id":9,"english":"Some people feel pressure to present a  perfect image on social media.","japanese":"一部の人はSNSで完璧な自分を見せようとプレッシャーを感じています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Social Media","grammarTags":[]},{"id":10,"english":"Some users become addicted to checking  notifications and likes.","japanese":"通知や「いいね」を確認することに依存するユーザーもいます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Social Media","grammarTags":[]},{"id":11,"english":"Some users face cyberbullying on social  networking sites.","japanese":"SNS上でネットいじめに遭うユーザーもいます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Social Media","grammarTags":[]},{"id":12,"english":"Online shopping allows consumers to  purchase items from the comfort of their  homes.","japanese":"オンラインショッピングにより、消費者は自宅にいながら商品を購入できます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Online Shopping","grammarTags":[]},{"id":13,"english":"E-commerce platforms offer a wide range of  products at competitive prices.","japanese":"ECサイトは、幅広い商品を競争力のある価格で提供しています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Online Shopping","grammarTags":[]},{"id":14,"english":"Online reviews and ratings influence  customer decisions significantly.","japanese":"オンラインのレビューや評価は、顧客の購買判断に大きな影響を与えます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Online Shopping","grammarTags":[]},{"id":15,"english":"Personalized recommendations improve the  online shopping experience.","japanese":"パーソナライズされたおすすめ商品は、オンラインショッピング体験を向上させます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Online Shopping","grammarTags":[]},{"id":16,"english":"Consumers should be cautious of scams and  counterfeit products online.","japanese":"消費者は詐欺や偽造品に注意する必要があります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Online Shopping","grammarTags":[]},{"id":17,"english":"Physical stores allow customers to see and  try products before purchasing.","japanese":"実店舗では、購入前に商品を見たり試したりすることができます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Online Shopping","grammarTags":[]},{"id":18,"english":"Brick-and-mortar stores offer personal  customer service and face-to-face interaction.","japanese":"実店舗は、対面での接客や直接的なやり取りを提供します。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Online Shopping","grammarTags":[]},{"id":19,"english":"Shopping in person provides immediate  access to purchased items.","japanese":"店頭での買い物では、購入した商品をすぐに受け取れます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Online Shopping","grammarTags":["participial"]},{"id":20,"english":"Cashless payments are becoming  increasingly popular around the world.","japanese":"キャッシュレス決済は世界中でますます普及しています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cashless Payments","grammarTags":[]},{"id":21,"english":"Many stores now accept digital payments  such as credit cards and QR codes.","japanese":"多くの店舗がクレジットカードやQRコードなどのデジタル決済に対応しています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cashless Payments","grammarTags":[]},{"id":22,"english":"Cashless systems reduce the risk of theft and  handling errors.","japanese":"キャッシュレスシステムは盗難や現金の取り扱いミスのリスクを減らします。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cashless Payments","grammarTags":[]},{"id":23,"english":"Cashless payments can speed up the  checkout process in stores.","japanese":"キャッシュレス決済は店舗での会計をスピーディーにします。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cashless Payments","grammarTags":[]},{"id":24,"english":"Tourists benefit from cashless options when  visiting unfamiliar countries.","japanese":"観光客は不慣れな国を訪れる際、キャッシュレスの選択肢があると便利です。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cashless Payments","grammarTags":[]},{"id":25,"english":"People can track their spending more easily  with digital payments.","japanese":"デジタル決済を使うと、支出をより簡単に管理できます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cashless Payments","grammarTags":[]},{"id":26,"english":"Some elderly people struggle to adapt to  digital payment systems.","japanese":"高齢者の中には、デジタル決済システムへの適応に苦労する人もいます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cashless Payments","grammarTags":[]},{"id":27,"english":"Digital payment systems require reliable  internet access to function.","japanese":"デジタル決済システムは安定したインターネット接続が必要です。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cashless Payments","grammarTags":[]},{"id":28,"english":"Some small businesses prefer cash to avoid  transaction fees.","japanese":"一部の小規模店舗は手数料を避けるために現金を好むことがあります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cashless Payments","grammarTags":[]},{"id":29,"english":"Cybercrime is a serious threat in today’s  digital society.","japanese":"サイバー犯罪は現代のデジタル社会における深刻な脅威です。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cybercrime","grammarTags":[]},{"id":30,"english":"Hackers often steal personal information from  unsecured websites.","japanese":"ハッカーはセキュリティの甘いウェブサイトから個人情報を盗むことがあります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cybercrime","grammarTags":[]},{"id":31,"english":"Online fraud includes fake websites and  investment schemes.","japanese":"オンライン詐欺には偽サイトや投資詐欺などが含まれます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cybercrime","grammarTags":[]},{"id":32,"english":"Identity theft is one of the most common  forms of cybercrime.","japanese":"個人情報の盗用は、最も一般的なサイバー犯罪の一つです。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cybercrime","grammarTags":[]},{"id":33,"english":"Ransomware locks users out of their data  and demands payment for access.","japanese":"ランサムウェアはデータへのアクセスを遮断し、解除のための支払いを要求します。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cybercrime","grammarTags":[]},{"id":34,"english":"Phishing scams try to trick people into giving  away personal information.","japanese":"フィッシング詐欺は人々から個人情報を騙し取ろうとします。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cybercrime","grammarTags":["participial"]},{"id":35,"english":"Cyberterrorism uses technology to threaten  or attack national security.","japanese":"サイバーテロは技術を使って国家の安全を脅かしたり攻撃したりします。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Cybercrime","grammarTags":[]},{"id":36,"english":"Many companies use technology to automate  simple and repetitive tasks.","japanese":"多くの企業が単純で繰り返しの多い作業を自動化するためにテクノロジーを活用しています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Technology and Work","grammarTags":[]},{"id":37,"english":"Technology can help employees become  more efficient and productive.","japanese":"テクノロジーは従業員の効率と生産性を高める手助けができます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Technology and Work","grammarTags":[]},{"id":38,"english":"AI systems can analyze large amounts of  data faster than humans.","japanese":"AIシステムは人間よりも速く大量のデータを分析できます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Technology and Work","grammarTags":[]},{"id":39,"english":"Many businesses use AI-powered chatbots to  handle customer service.","japanese":"多くの企業がカスタマーサービスにAIチャットボットを導入しています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Technology and Work","grammarTags":[]},{"id":40,"english":"Many factories are replacing human workers  on assembly lines with automated machinery  and robotics.","japanese":"多くの工場では、組立ラインの人間の労働者を自動機械やロボットに置き換えています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Technology and Work","grammarTags":[]},{"id":41,"english":"Self-checkout systems reduce the need for  cashiers in supermarkets.","japanese":"セルフレジの導入により、スーパーマーケットではレジ係の必要性が減っています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Technology and Work","grammarTags":[]},{"id":42,"english":"Delivery drones and self-driving vehicles may  displace human delivery drivers in the near  future.","japanese":"配達ドローンや自動運転車は、近い将来、人間の配達員を置き換える可能性があります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Technology and Work","grammarTags":[]},{"id":43,"english":"Space exploration helps scientists  understand the universe by enabling them to  find new planets and study black holes.","japanese":"宇宙探査は、新たな惑星の発見やブラックホールの研究を通じて、科学者たちが宇宙を理解する助けとなっています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Space Exploration","grammarTags":[]},{"id":44,"english":"Space programs frequently lead to  innovations that benefit society.","japanese":"宇宙開発計画は、社会に利益をもたらす革新をもたらすことがよくあります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Space Exploration","grammarTags":[]},{"id":45,"english":"Satellites play a key role in communication,  weather forecasting, and navigation.","japanese":"人工衛星は通信、天気予報、ナビゲーションで重要な役割を果たしています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Space Exploration","grammarTags":[]},{"id":46,"english":"Researchers investigate the possibility of  extraterrestrial life on other planets.","japanese":"科学者たちは他の惑星における地球外生命体の存在可能性を調査しています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Space Exploration","grammarTags":[]},{"id":47,"english":"Communication with aliens could lead to  scientific breakthroughs.","japanese":"宇宙人との意思疎通は、科学の大きな進歩につながるかもしれません。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Space Exploration","grammarTags":[]},{"id":48,"english":"Contacting extraterrestrial beings might pose  a threat to Earth if they are hostile.","japanese":"地球外生命体が敵対的であれば、接触は地球に脅威をもたらす可能性があります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Space Exploration","grammarTags":["participial"]},{"id":49,"english":"Testing on animals raises ethical and moral  concerns.","japanese":"動物実験は倫理的、道徳的な問題を引き起こします。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Animal Testing","grammarTags":["participial"]},{"id":50,"english":"Some people believe that animal testing is  necessary for medical progress.","japanese":"一部の人々は、医療の進歩には動物実験が必要だと考えています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Animal Testing","grammarTags":[]},{"id":51,"english":"Animal experiments have helped develop  vaccines and life-saving drugs.","japanese":"動物実験はワクチンや命を救う薬の開発に役立ってきました。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Animal Testing","grammarTags":[]},{"id":52,"english":"Opponents argue that using animals for  experiments is cruel and inhumane.","japanese":"反対派は、動物を実験に使うことは残酷で非人道的だと主張しています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Animal Testing","grammarTags":[]},{"id":53,"english":"Urban planning is essential for creating  livable and sustainable cities.","japanese":"都市計画は、住みやすく持続可能な都市をつくるために不可欠です。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Urban Planning","grammarTags":[]},{"id":54,"english":"Urban planning must balance residential  development with environmental protection.","japanese":"都市計画では、住宅開発と環境保護のバランスをとる必要があります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Urban Planning","grammarTags":[]},{"id":55,"english":"Access to nature in cities can reduce stress  and improve mental health.","japanese":"都市で自然に触れることは、ストレスを減らし、精神的健康を改善する効果があります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Urban Planning","grammarTags":[]},{"id":56,"english":"Parks improve the quality of urban life by  offering space for relaxation and recreation.","japanese":"公園は、リラックスやレクリエーションの場を提供することで都市生活の質を高めます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Urban Planning","grammarTags":[]},{"id":57,"english":"A well-designed infrastructure system is the  backbone of a functional city.","japanese":"よく設計されたインフラシステムは、機能的な都市の基盤です。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Urban Planning","grammarTags":[]},{"id":58,"english":"Public infrastructure such as roads, water  supply, and sewage systems must be  regularly maintained.","japanese":"道路、給水、下水などの公共インフラは、定期的に整備されなければなりません。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Urban Planning","grammarTags":[]},{"id":59,"english":"Good housing design should balance  aesthetics with functionality.","japanese":"優れた住宅デザインは、美しさと機能性のバランスを取るべきです。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Urban Planning","grammarTags":[]},{"id":60,"english":"Energy-efficient home designs can  significantly reduce utility costs and  environmental impact.","japanese":"省エネ設計の住宅は、光熱費と環境負荷を大幅に削減できます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Urban Planning","grammarTags":[]},{"id":61,"english":"Preserving historic buildings helps maintain a  city’s cultural identity.","japanese":"歴史的建物の保存は、都市の文化的アイデンティティの維持に役立ちます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Urban Planning","grammarTags":["participial"]},{"id":62,"english":"Old buildings often attract tourists and  contribute to the local economy.","japanese":"古い建物は観光客を引きつけ、地域経済に貢献することがあります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Urban Planning","grammarTags":[]},{"id":63,"english":"Restoring old structures can be more  sustainable than demolishing and rebuilding.","japanese":"古い建物を修復することは、取り壊して再建するよりも持続可能な選択肢になり得ます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Urban Planning","grammarTags":["participial"]},{"id":64,"english":"Buses and trains are often more affordable  than owning a private car.","japanese":"バスや電車は、マイカーを所有するよりも費用が安いことが多いです。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Transport","grammarTags":[]},{"id":65,"english":"Overcrowding during rush hours is a common  problem in public transport.","japanese":"公共交通機関では、通勤時間帯の混雑が一般的な問題です。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Transport","grammarTags":["participial"]},{"id":66,"english":"Self-driving cars are becoming more common  with advances in technology.","japanese":"技術の進歩により、自動運転車はますます一般的になってきています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Transport","grammarTags":[]},{"id":67,"english":"Autonomous vehicles have the potential to  reduce traffic accidents.","japanese":"自動運転車には交通事故を減らす可能性があります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Transport","grammarTags":[]},{"id":68,"english":"Traffic flow could improve if all cars on the  road were autonomous.","japanese":"すべての車が自動運転であれば、交通の流れが改善される可能性があります。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Transport","grammarTags":[]},{"id":69,"english":"Some people worry that driverless cars may  not be sufficiently safe.","japanese":"一部の人々は、無人運転車の安全性がまだ十分ではないのではないかと懸念しています。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Transport","grammarTags":[]},{"id":70,"english":"Governments can encourage cycling by  building more bike-friendly infrastructure.","japanese":"政府は自転車に優しいインフラを整備することで、自転車利用を促進できます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Transport","grammarTags":[]},{"id":71,"english":"Dedicated bike lanes make cycling safer for  commuters.","japanese":"専用の自転車レーンは、通勤者にとっての安全性を高めます。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Transport","grammarTags":[]},{"id":72,"english":"Bicycle parking spaces are essential for  supporting daily use.","japanese":"自転車の駐輪スペースは、日常利用を支えるために不可欠です。","topic":"Technology","topicJp":"テクノロジー","subtopic":"Transport","grammarTags":[]},{"id":73,"english":"Science helps us tackle real-life issues such  as disease, pollution, and energy shortages.","japanese":"科学は、病気や汚染、エネルギー不足といった現実の問題に取り組む助けとなります。","topic":"Education","topicJp":"教育","subtopic":"Sciences vs Humanities","grammarTags":[]},{"id":74,"english":"Technology improves our lives by enabling  better healthcare and faster communication.","japanese":"テクノロジーは、より良い医療や迅速な通信を可能にすることで私たちの生活を向上させています。","topic":"Education","topicJp":"教育","subtopic":"Sciences vs Humanities","grammarTags":[]},{"id":75,"english":"Engineers develop everyday technologies  such as infrastructure, machinery, and  software.","japanese":"技術者は、インフラ、機械、ソフトウェアといった日常的に使われる技術を開発しています。","topic":"Education","topicJp":"教育","subtopic":"Sciences vs Humanities","grammarTags":[]},{"id":76,"english":"Studying mathematics strengthens logical  thinking and problem-solving skills, especially  through topics like algebra and geometry.","japanese":"数学を学ぶことで、特に代数や幾何のような分野を通して、論理的思考力と問題解決能力が鍛えられます。","topic":"Education","topicJp":"教育","subtopic":"Sciences vs Humanities","grammarTags":["participial"]},{"id":77,"english":"Studying history helps us understand past  events and avoid repeating mistakes.","japanese":"歴史を学ぶことで、過去の出来事を理解し、同じ過ちを繰り返さないようにできます。","topic":"Education","topicJp":"教育","subtopic":"Sciences vs Humanities","grammarTags":["participial"]},{"id":78,"english":"Literature develops empathy and allows us to  explore different human experiences.","japanese":"文学は共感力を育て、さまざまな人間の経験を疑似体験させてくれます。","topic":"Education","topicJp":"教育","subtopic":"Sciences vs Humanities","grammarTags":[]},{"id":79,"english":"Philosophy helps students develop critical  thinking and clear reasoning skills.","japanese":"哲学は、学生が批判的思考力や明確な推論能力を身につけるのに役立ちます。","topic":"Education","topicJp":"教育","subtopic":"Sciences vs Humanities","grammarTags":[]},{"id":80,"english":"Art education enhances creativity and  imagination.","japanese":"芸術教育は創造力と想像力を高めます。","topic":"Education","topicJp":"教育","subtopic":"Art","grammarTags":[]},{"id":81,"english":"Arts promote cultural awareness and  appreciation.","japanese":"芸術は文化理解と文化への敬意を促進します。","topic":"Education","topicJp":"教育","subtopic":"Art","grammarTags":[]},{"id":82,"english":"Art classes may take time away from core  academic subjects.","japanese":"芸術の授業が主要科目の学習時間を奪う可能性があります。","topic":"Education","topicJp":"教育","subtopic":"Art","grammarTags":[]},{"id":83,"english":"Career prospects in the arts are often limited  compared to STEM fields.","japanese":"芸術分野の職業機会は、STEM分野に比べて限られていることが多いです。","topic":"Education","topicJp":"教育","subtopic":"Art","grammarTags":[]},{"id":84,"english":"Museums provide educational experiences  outside the classroom.","japanese":"博物館は教室外での教育的な体験を提供します。","topic":"Education","topicJp":"教育","subtopic":"Art","grammarTags":[]},{"id":85,"english":"Museums play a vital role in preserving a  nation's cultural heritage and educating  people about their history.","japanese":"博物館は、その国の文化遺産を保存し、人々に自国の歴史を伝えるうえで重要な役割を果たしています。","topic":"Education","topicJp":"教育","subtopic":"Art","grammarTags":[]},{"id":86,"english":"Music is a universal language that connects  people across cultures.","japanese":"音楽は文化を超えて人々をつなぐ普遍的な言語です。","topic":"Education","topicJp":"教育","subtopic":"Music","grammarTags":[]},{"id":87,"english":"Learning to play an instrument enhances  cognitive and motor skills.","japanese":"楽器を演奏することを学ぶと、認知能力と運動能力が向上します。","topic":"Education","topicJp":"教育","subtopic":"Music","grammarTags":["participial"]},{"id":88,"english":"Music education fosters creativity and  self-expression in children.","japanese":"音楽教育は子どもの創造力と自己表現力を育てます。","topic":"Education","topicJp":"教育","subtopic":"Music","grammarTags":[]},{"id":89,"english":"Listening to music can reduce stress and  improve mental health.","japanese":"音楽を聴くことはストレスを軽減し、メンタルヘルスを向上させます。","topic":"Education","topicJp":"教育","subtopic":"Music","grammarTags":["participial"]},{"id":90,"english":"Attending live concerts can build a sense of  community and belonging.","japanese":"ライブコンサートへの参加は、コミュニティ意識や一体感を育てます。","topic":"Education","topicJp":"教育","subtopic":"Music","grammarTags":["participial"]},{"id":91,"english":"Foreign language skills improve  communication and cultural understanding.","japanese":"外国語スキルはコミュニケーションと文化理解を深めます。","topic":"Education","topicJp":"教育","subtopic":"Foreign Languages","grammarTags":[]},{"id":92,"english":"In a globalised world, speaking more than","japanese":"グローバル化した世界では、多言語を話せるこ","topic":"Education","topicJp":"教育","subtopic":"Foreign Languages","grammarTags":["participial"]},{"id":93,"english":"one language is a major advantage.","japanese":"とは大きな強みです。","topic":"Education","topicJp":"教育","subtopic":"Foreign Languages","grammarTags":[]},{"id":94,"english":"Foreign language education increases job  opportunities in international fields.","japanese":"外国語教育は国際的な分野での就職の機会を広げます。","topic":"Education","topicJp":"教育","subtopic":"Foreign Languages","grammarTags":[]},{"id":95,"english":"Being bilingual can delay the onset of  age-related cognitive decline.","japanese":"バイリンガルであることは加齢に伴う認知機能低下を遅らせる可能性があります。","topic":"Education","topicJp":"教育","subtopic":"Foreign Languages","grammarTags":["participial"]},{"id":96,"english":"Free tuition can reduce inequality and  increase access to higher education.","japanese":"授業料の無償化は不平等を減らし、高等教育へのアクセスを広げます。","topic":"Education","topicJp":"教育","subtopic":"Free Education","grammarTags":[]},{"id":97,"english":"Free tuition could reduce the financial burden  on low-income families.","japanese":"授業料の無償化は、低所得世帯の経済的負担を軽減する可能性があります。","topic":"Education","topicJp":"教育","subtopic":"Free Education","grammarTags":[]},{"id":98,"english":"Free university may lead to overcrowded  classrooms and reduced quality.","japanese":"大学が無償になると、教室が過密になり、質が下がる可能性があります。","topic":"Education","topicJp":"教育","subtopic":"Free Education","grammarTags":[]},{"id":99,"english":"Students may take education for granted if it  is completely free.","japanese":"教育が完全に無償であれば、学生がそれを当たり前のものと考えてしまうかもしれません。","topic":"Education","topicJp":"教育","subtopic":"Free Education","grammarTags":[]},{"id":100,"english":"Wearing a uniform creates a sense of  discipline and belonging.","japanese":"制服は規律や所属意識を育みます。","topic":"Education","topicJp":"教育","subtopic":"School Uniforms","grammarTags":["participial"]},{"id":101,"english":"Wearing a uniform saves time in the morning  by removing the need to choose clothes.","japanese":"服を選ぶ必要がなくなることで、制服は朝の時間を節約できます。","topic":"Education","topicJp":"教育","subtopic":"School Uniforms","grammarTags":["participial"]},{"id":102,"english":"Uniforms limit students’ freedom of  expression.","japanese":"制服は自己表現の自由を制限します。","topic":"Education","topicJp":"教育","subtopic":"School Uniforms","grammarTags":[]},{"id":103,"english":"Some families may struggle with uniform  costs.","japanese":"制服の費用に苦労する家庭もあるかもしれません。","topic":"Education","topicJp":"教育","subtopic":"School Uniforms","grammarTags":[]},{"id":104,"english":"Online classes offer greater flexibility in time  and location.","japanese":"オンライン授業は時間と場所の柔軟性があります。","topic":"Education","topicJp":"教育","subtopic":"Online Learning","grammarTags":[]},{"id":105,"english":"Online learning offers access to a wide range","japanese":"オンライン学習は多様なコースや教材へのアク","topic":"Education","topicJp":"教育","subtopic":"Online Learning","grammarTags":[]},{"id":106,"english":"of courses and resources.","japanese":"セスを提供します。","topic":"Education","topicJp":"教育","subtopic":"Online Learning","grammarTags":[]},{"id":107,"english":"Lack of face-to-face interaction can lead to  isolation.","japanese":"対面での交流がないと孤立感を感じやすくなります。","topic":"Education","topicJp":"教育","subtopic":"Online Learning","grammarTags":[]},{"id":108,"english":"Unstable internet connections or software  glitches can disrupt online learning.","japanese":"不安定なインターネット接続やソフトの不具合が、オンライン学習の妨げになることがあります。","topic":"Education","topicJp":"教育","subtopic":"Online Learning","grammarTags":[]},{"id":109,"english":"Cooperation fosters essential skills such as  teamwork and effective communication.","japanese":"協力は、チームワークや効果的なコミュニケーションといった重要なスキルを育みます。","topic":"Education","topicJp":"教育","subtopic":"Cooperation vs Competition","grammarTags":[]},{"id":110,"english":"Collaborative efforts often result in higher  efficiency and improved outcomes.","japanese":"協働することで、効率が高まり、より良い成果が得られることが多いです。","topic":"Education","topicJp":"教育","subtopic":"Cooperation vs Competition","grammarTags":[]},{"id":111,"english":"Cooperation can slow down decision-making.","japanese":"協力には意思決定に時間がかかることがあります。","topic":"Education","topicJp":"教育","subtopic":"Cooperation vs Competition","grammarTags":[]},{"id":112,"english":"Relying too much on others can reduce  individual responsibility.","japanese":"他人に頼りすぎると、個人の責任感が弱まる可能性があります。","topic":"Education","topicJp":"教育","subtopic":"Cooperation vs Competition","grammarTags":["participial"]},{"id":113,"english":"Healthy competition encourages  self-improvement.","japanese":"健全な競争は自己改善を促します。","topic":"Education","topicJp":"教育","subtopic":"Cooperation vs Competition","grammarTags":[]},{"id":114,"english":"In business, competition drives innovation  and lowers prices.","japanese":"ビジネスでは、競争がイノベーションを生み、価格を下げます。","topic":"Education","topicJp":"教育","subtopic":"Cooperation vs Competition","grammarTags":[]},{"id":115,"english":"Some students perform better when  challenged by peers.","japanese":"仲間と競うことで学業成績が上がる生徒もいます。","topic":"Education","topicJp":"教育","subtopic":"Cooperation vs Competition","grammarTags":[]},{"id":116,"english":"Excessive competition can lead to increased  stress and mental health issues.","japanese":"過度な競争は、ストレスやメンタルヘルスの問題を引き起こす可能性があります。","topic":"Education","topicJp":"教育","subtopic":"Cooperation vs Competition","grammarTags":[]},{"id":117,"english":"Competitive environments may harm  relationships and teamwork.","japanese":"競争的な環境は人間関係やチームワークを損なうことがあります。","topic":"Education","topicJp":"教育","subtopic":"Cooperation vs Competition","grammarTags":[]},{"id":118,"english":"In some cases, competition may encourage  unethical behavior, such as cheating.","japanese":"競争は場合によっては、不正行為などの非倫理的な行動を助長することがあります。","topic":"Education","topicJp":"教育","subtopic":"Cooperation vs Competition","grammarTags":[]},{"id":119,"english":"Individual athletes can concentrate solely on  their own performance and development.","japanese":"個人競技の選手は、自分のパフォーマンスと成長に専念することができます。","topic":"Education","topicJp":"教育","subtopic":"Individual vs Team Sports","grammarTags":[]},{"id":120,"english":"Outcomes in individual sports are entirely  dependent on personal effort and ability.","japanese":"個人競技では、結果はすべて自分自身の努力と能力にかかっています。","topic":"Education","topicJp":"教育","subtopic":"Individual vs Team Sports","grammarTags":[]},{"id":121,"english":"Individual sports can feel isolating or lonely.","japanese":"個人競技は、孤立感や孤独を感じさせることがあります。","topic":"Education","topicJp":"教育","subtopic":"Individual vs Team Sports","grammarTags":[]},{"id":122,"english":"In individual sports, athletes have no  teammates to rely on during difficult  moments.","japanese":"個人競技では、困難なときに頼れるチームメイトがいません。","topic":"Education","topicJp":"教育","subtopic":"Individual vs Team Sports","grammarTags":[]},{"id":123,"english":"In team sports, players support each other  and share responsibility.","japanese":"団体競技では、選手同士が支え合い、責任を分担します。","topic":"Education","topicJp":"教育","subtopic":"Individual vs Team Sports","grammarTags":[]},{"id":124,"english":"Team sports teach cooperation and  communication.","japanese":"団体競技は協力とコミュニケーションを教えます。","topic":"Education","topicJp":"教育","subtopic":"Individual vs Team Sports","grammarTags":[]},{"id":125,"english":"Individual effort may be overlooked in team  settings.","japanese":"個人の努力がチームの中で目立たなくなることがあります。","topic":"Education","topicJp":"教育","subtopic":"Individual vs Team Sports","grammarTags":[]},{"id":126,"english":"Internal conflicts within a team can negatively  impact overall performance.","japanese":"チーム内の対立は、全体のパフォーマンスに悪影響を及ぼすことがあります。","topic":"Education","topicJp":"教育","subtopic":"Individual vs Team Sports","grammarTags":[]},{"id":127,"english":"Reading regularly enhances vocabulary,  comprehension, and critical thinking skills.","japanese":"定期的な読書は、語彙力・読解力・批判的思考力を高めます。","topic":"Education","topicJp":"教育","subtopic":"Reading","grammarTags":["participial"]},{"id":128,"english":"Encouraging children to read from a young  age fosters imagination and lifelong learning.","japanese":"幼い頃から子どもに読書を促すことは、想像力と生涯学習の姿勢を育みます。","topic":"Education","topicJp":"教育","subtopic":"Reading","grammarTags":["participial"]},{"id":129,"english":"Many people still prefer printed books for their  physical feel and readability.","japanese":"多くの人は、手触りや読みやすさの点で紙の本を好みます。","topic":"Education","topicJp":"教育","subtopic":"Reading","grammarTags":[]},{"id":130,"english":"Some people find it easier to concentrate  when reading a physical book.","japanese":"紙の本の方が集中しやすいと感じる人もいます。","topic":"Education","topicJp":"教育","subtopic":"Reading","grammarTags":[]},{"id":131,"english":"E-books do not require physical storage  space, unlike printed books.","japanese":"電子書籍は紙の本と違い、物理的な保管スペースが必要ありません。","topic":"Education","topicJp":"教育","subtopic":"Reading","grammarTags":[]},{"id":132,"english":"E-books are convenient because they can be  downloaded instantly.","japanese":"電子書籍はすぐにダウンロードできるので便利です。","topic":"Education","topicJp":"教育","subtopic":"Reading","grammarTags":[]},{"id":133,"english":"Public libraries provide free access to  knowledge for everyone, regardless of  income.","japanese":"公共図書館は、所得に関係なく誰にでも知識への無料アクセスを提供します。","topic":"Education","topicJp":"教育","subtopic":"Reading","grammarTags":[]},{"id":134,"english":"Libraries often run community programs such  as reading clubs and workshops.","japanese":"図書館では、読書会やワークショップなどの地域プログラムがよく開催されています。","topic":"Education","topicJp":"教育","subtopic":"Reading","grammarTags":[]},{"id":135,"english":"Libraries preserve cultural heritage through  books, archives, and historical documents.","japanese":"図書館は書籍、公文書、歴史的文書を通じて文化遺産を保存している。","topic":"Education","topicJp":"教育","subtopic":"Reading","grammarTags":[]},{"id":136,"english":"Print media is often considered more credible  due to its rigorous editorial standards.","japanese":"活字媒体は、厳格な編集基準のため信頼性が高いとよく見なされます。","topic":"The Media","topicJp":"メディア","subtopic":"Print Media","grammarTags":[]},{"id":137,"english":"Printed media plays a key role in preserving  cultural and historical records.","japanese":"活字媒体は、文化的・歴史的記録の保存に重要な役割を果たします。","topic":"The Media","topicJp":"メディア","subtopic":"Print Media","grammarTags":[]},{"id":138,"english":"Physical copies are accessible to elderly  people who may not use digital devices.","japanese":"高齢者など、デジタル機器を使わない人にも紙媒体は利用しやすいです。","topic":"The Media","topicJp":"メディア","subtopic":"Print Media","grammarTags":["relative_pronoun"]},{"id":139,"english":"Printed newspapers cannot provide real-time  updates.","japanese":"紙の新聞はリアルタイムでの更新ができません。","topic":"The Media","topicJp":"メディア","subtopic":"Print Media","grammarTags":[]},{"id":140,"english":"The limited space in newspapers and  magazines often restricts how much  information can be included.","japanese":"新聞や雑誌の紙面には限りがあるため、掲載できる情報量が制限されることがよくあります。","topic":"The Media","topicJp":"メディア","subtopic":"Print Media","grammarTags":[]},{"id":141,"english":"Online news platforms provide instant access  to global events as they happen.","japanese":"オンラインニュースは、世界の出来事に即座にアクセスできる手段を提供します。","topic":"The Media","topicJp":"メディア","subtopic":"Online Media","grammarTags":[]},{"id":142,"english":"Users can access news anytime and  anywhere via smartphones or tablets.","japanese":"スマートフォンやタブレットでいつでもどこでもニュースを閲覧できます。","topic":"The Media","topicJp":"メディア","subtopic":"Online Media","grammarTags":[]},{"id":143,"english":"News websites often include multimedia  content such as videos and audio clips.","japanese":"ニュースサイトには、動画や音声クリップなどのマルチメディアコンテンツがよく含まれています。","topic":"The Media","topicJp":"メディア","subtopic":"Online Media","grammarTags":[]},{"id":144,"english":"Many online platforms use algorithms to show  users personalized news content.","japanese":"多くのオンラインプラットフォームは、ユーザーに合わせたニュースを表示するアルゴリズムを使用しています。","topic":"The Media","topicJp":"メディア","subtopic":"Online Media","grammarTags":[]},{"id":145,"english":"Search functions help readers find specific  articles quickly.","japanese":"検索機能で読者は特定の記事をすぐに見つけることができます。","topic":"The Media","topicJp":"メディア","subtopic":"Online Media","grammarTags":[]},{"id":146,"english":"Online platforms can spread misinformation  rapidly.","japanese":"オンラインプラットフォームでは誤情報が急速に拡散される恐れがあります。","topic":"The Media","topicJp":"メディア","subtopic":"Online Media","grammarTags":[]},{"id":147,"english":"Not all sources are credible or fact-checked.","japanese":"すべての情報源が信頼できるとは限らず、また事実確認がされていない場合があります。","topic":"The Media","topicJp":"メディア","subtopic":"Online Media","grammarTags":[]},{"id":148,"english":"Users may be overwhelmed by the sheer  volume of information.","japanese":"利用者は情報量が多すぎて圧倒されることがあります。","topic":"The Media","topicJp":"メディア","subtopic":"Online Media","grammarTags":[]},{"id":149,"english":"Advertising helps businesses reach potential  customers and increase sales.","japanese":"広告は企業が潜在顧客にリーチし、売上を伸ばすのに役立ちます。","topic":"The Media","topicJp":"メディア","subtopic":"Advertising","grammarTags":["participial"]},{"id":150,"english":"Well-crafted advertisements can build strong  brand recognition.","japanese":"よく作られた広告は、強いブランド認知を築くことができます。","topic":"The Media","topicJp":"メディア","subtopic":"Advertising","grammarTags":[]},{"id":151,"english":"Informative ads can educate consumers  about new products and innovations.","japanese":"情報を提供する広告は、新商品や技術革新について消費者に知識を与えます。","topic":"The Media","topicJp":"メディア","subtopic":"Advertising","grammarTags":[]},{"id":152,"english":"Some advertisements use manipulative or  misleading messages.","japanese":"一部の広告は、人を操るような、または誤解を招く表現を使用しています。","topic":"The Media","topicJp":"メディア","subtopic":"Advertising","grammarTags":[]},{"id":153,"english":"Advertising encourages materialism and  excessive consumerism.","japanese":"広告は物質主義や過度な消費主義を助長します。","topic":"The Media","topicJp":"メディア","subtopic":"Advertising","grammarTags":["participial"]},{"id":154,"english":"Too many ads can clutter websites and  disrupt user experience.","japanese":"広告が多すぎると、ウェブサイトを雑然とさせ、ユーザー体験を損ないます。","topic":"The Media","topicJp":"メディア","subtopic":"Advertising","grammarTags":[]},{"id":155,"english":"Advertising can create unrealistic beauty or  lifestyle standards.","japanese":"広告は、非現実的な美やライフスタイルの基準を作り出すことがあります。","topic":"The Media","topicJp":"メディア","subtopic":"Advertising","grammarTags":["participial"]},{"id":156,"english":"Advertisements often trigger impulse buying  by creating a sense of urgency or scarcity.","japanese":"広告は、緊急性や希少性を演出することで、しばしば衝動買いを引き起こします。","topic":"The Media","topicJp":"メディア","subtopic":"Advertising","grammarTags":[]},{"id":157,"english":"Celebrities often serve as role models,  especially for young people.","japanese":"有名人は、特に若者にとってロールモデルになることが多いです。","topic":"The Media","topicJp":"メディア","subtopic":"Celebrities","grammarTags":[]},{"id":158,"english":"Celebrities can inspire people to pursue  careers in music, sports, or acting.","japanese":"有名人は、人々が音楽・スポーツ・演技などの職業を目指すきっかけになります。","topic":"The Media","topicJp":"メディア","subtopic":"Celebrities","grammarTags":[]},{"id":159,"english":"Celebrities who engage in charity work can  inspire public generosity.","japanese":"慈善活動を行う有名人は、一般の人々の寛容さを引き出すことができます。","topic":"The Media","topicJp":"メディア","subtopic":"Celebrities","grammarTags":["relative_pronoun"]},{"id":160,"english":"Some celebrities promote unhealthy  lifestyles, such as substance abuse or","japanese":"一部の有名人は、薬物乱用や極端なダイエットなど、不健康なライフスタイルを助長していま","topic":"The Media","topicJp":"メディア","subtopic":"Celebrities","grammarTags":[]},{"id":161,"english":"extreme dieting.","japanese":"す。","topic":"The Media","topicJp":"メディア","subtopic":"Celebrities","grammarTags":[]},{"id":162,"english":"Fame can lead to financial success and a  luxurious lifestyle.","japanese":"有名になることで、経済的成功や贅沢な生活が手に入ることがあります。","topic":"The Media","topicJp":"メディア","subtopic":"Celebrities","grammarTags":[]},{"id":163,"english":"Fame allows people to reach a global  audience through media and social platforms.","japanese":"有名になると、メディアやSNSを通じて世界中の人々に情報を届けられます。","topic":"The Media","topicJp":"メディア","subtopic":"Celebrities","grammarTags":[]},{"id":164,"english":"Famous people often lose their privacy.","japanese":"有名人はプライバシーを失うことが多いです。","topic":"The Media","topicJp":"メディア","subtopic":"Celebrities","grammarTags":[]},{"id":165,"english":"Media scrutiny can lead to stress and anxiety.","japanese":"メディアの監視は、ストレスや不安を引き起こすことがあります。","topic":"The Media","topicJp":"メディア","subtopic":"Celebrities","grammarTags":[]},{"id":166,"english":"Celebrities are frequently judged harshly for  their mistakes.","japanese":"有名人のミスは厳しく非難されがちです。","topic":"The Media","topicJp":"メディア","subtopic":"Celebrities","grammarTags":[]},{"id":167,"english":"Fame can attract unwanted attention or even  stalkers.","japanese":"有名になることで、望まぬ注目やストーカー被害に遭うことがあります。","topic":"The Media","topicJp":"メディア","subtopic":"Celebrities","grammarTags":[]},{"id":168,"english":"Fame may lead to unrealistic expectations  from the public.","japanese":"有名であることは、世間から非現実的な期待を抱かれる原因にもなります。","topic":"The Media","topicJp":"メディア","subtopic":"Celebrities","grammarTags":[]},{"id":169,"english":"Television remains a major source of  entertainment and information for people of  all ages.","japanese":"テレビは今でも、あらゆる年代の人々にとって娯楽と情報を得るための主要な手段です。","topic":"The Media","topicJp":"メディア","subtopic":"Television","grammarTags":[]},{"id":170,"english":"Educational programs on television can help  children learn basic skills outside the  classroom.","japanese":"テレビの教育番組は、子どもが教室の外で基本的なスキルを学ぶ助けになります。","topic":"The Media","topicJp":"メディア","subtopic":"Television","grammarTags":[]},{"id":171,"english":"Excessive watching of television has been  linked to health problems such as obesity and  poor sleep.","japanese":"テレビの見すぎは、肥満や睡眠障害などの健康問題と関連づけられています。","topic":"The Media","topicJp":"メディア","subtopic":"Television","grammarTags":[]},{"id":172,"english":"Excessive exposure to violent or  inappropriate content on television may  negatively influence children’s behavior.","japanese":"テレビの暴力的または不適切な内容への過剰な接触は、子どもの行動に悪影響を与える可能性があります。","topic":"The Media","topicJp":"メディア","subtopic":"Television","grammarTags":[]},{"id":173,"english":"Seeing a film with others can bring people  together and help them feel more connected.","japanese":"他の人と一緒に映画を観ることは、人々を結びつけ、よりつながりを感じさせてくれます。","topic":"The Media","topicJp":"メディア","subtopic":"Films","grammarTags":["participial"]},{"id":174,"english":"Films can educate audiences by addressing  historical events, social issues, or scientific  concepts.","japanese":"映画は歴史的出来事や社会問題、科学的な概念を扱うことで観客を教育することができます。","topic":"The Media","topicJp":"メディア","subtopic":"Films","grammarTags":[]},{"id":175,"english":"Foreign films can expose viewers to different  cultures, languages, and perspectives.","japanese":"海外映画は、観客に異なる文化や言語や視点を見せることができます。","topic":"The Media","topicJp":"メディア","subtopic":"Films","grammarTags":[]},{"id":176,"english":"High production costs may encourage  filmmakers to prioritize commercial appeal  over substance.","japanese":"高額な制作費は、制作者に内容より商業性を重視させることがあります。","topic":"The Media","topicJp":"メディア","subtopic":"Films","grammarTags":[]},{"id":177,"english":"Multiplayer games can improve  communication and cooperation among  players.","japanese":"複数人でプレイするゲームは、プレイヤーの間での意思疎通や協力関係の向上に役立ちます。","topic":"The Media","topicJp":"メディア","subtopic":"Video Games","grammarTags":[]},{"id":178,"english":"Educational video games can be a fun and  effective way for children to learn.","japanese":"教育的なテレビゲームは、子どもにとって楽しく効果的な学習手段となり得ます。","topic":"The Media","topicJp":"メディア","subtopic":"Video Games","grammarTags":[]},{"id":179,"english":"Video games offer an escape from daily  stress and can be a healthy form of relaxation  when played in moderation.","japanese":"テレビゲームは日々のストレスからの逃避手段となり、適度に遊べば健全なリラックス手段にもなります。","topic":"The Media","topicJp":"メディア","subtopic":"Video Games","grammarTags":[]},{"id":180,"english":"Parents should monitor the content and  amount of time their children spend on video  games.","japanese":"親は子どもがプレイするゲームの内容と時間を管理すべきです。","topic":"The Media","topicJp":"メディア","subtopic":"Video Games","grammarTags":[]},{"id":181,"english":"Population influx brings more workers to the  city.","japanese":"人口の流入によって都市に多くの労働者が集まります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Population Movement","grammarTags":[]},{"id":182,"english":"Economic activity rises when more  consumers enter the city.","japanese":"都市に消費者が増えることで経済活動が活発になります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Population Movement","grammarTags":[]},{"id":183,"english":"Rapid population growth can lead to  overcrowded cities.","japanese":"急激な人口増加は都市の過密化を招く可能性があります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Population Movement","grammarTags":[]},{"id":184,"english":"A rise in the urban population can cause  traffic congestion and longer commutes.","japanese":"都市の人口が増加すると、交通が混雑したり通勤時間が長くなったりする原因になります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Population Movement","grammarTags":[]},{"id":185,"english":"In rural areas, fewer workers make it difficult  to support local farms and small businesses.","japanese":"地方では労働者が減少すると、地元の農業や小規模な商業の維持が困難になります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Population Movement","grammarTags":[]},{"id":186,"english":"In rural communities, community events and  traditions may fade due to population decline.","japanese":"地方の地域社会では、人口減少により地域の行事や伝統が薄れていく可能性があります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Population Movement","grammarTags":[]},{"id":187,"english":"Economic decline in rural towns can result in  abandoned homes and closed shops.","japanese":"地方の町では経済の衰退により空き家や閉店が増加することがあります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Population Movement","grammarTags":[]},{"id":188,"english":"Rural local governments may struggle to  maintain public services due to reduced tax  revenue.","japanese":"地方自治体は、税収の減少により公共サービスの維持に苦労する可能性があります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Population Movement","grammarTags":[]},{"id":189,"english":"Less population growth helps ease  environmental strain.","japanese":"人口増加の抑制が環境負荷の軽減につながります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Declining Birth Rate","grammarTags":[]},{"id":190,"english":"Cities face less overcrowding with fewer  births.","japanese":"出生数の減少により都市の過密化が和らぎます。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Declining Birth Rate","grammarTags":[]},{"id":191,"english":"A declining birthrate leads to a shrinking  workforce.","japanese":"出生率の低下は労働力の減少につながります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Declining Birth Rate","grammarTags":[]},{"id":192,"english":"Pension systems become unsustainable with  fewer contributors.","japanese":"拠出者が減ることで年金制度が持続しにくくなります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Declining Birth Rate","grammarTags":[]},{"id":193,"english":"Immigration may be needed to fill  demographic gaps.","japanese":"人口構成のギャップを埋めるために移民が必要になる場合があります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Declining Birth Rate","grammarTags":[]},{"id":194,"english":"Older people often have valuable experience  and wisdom.","japanese":"高齢者は貴重な経験と知恵を持っています。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Ageing Population","grammarTags":[]},{"id":195,"english":"Retirees can contribute through volunteer  work and mentoring.","japanese":"退職者がボランティアやメンターとしての支援を通じて貢献できます。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Ageing Population","grammarTags":[]},{"id":196,"english":"Many grandparents provide childcare, which  eases the burden on working families.","japanese":"多くの祖父母が育児を担い、働く家庭の負担を軽減しています。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Ageing Population","grammarTags":["relative_pronoun"]},{"id":197,"english":"An increase in the elderly population may  place a greater burden on younger  generations.","japanese":"高齢者の人口が増加すると、若い世代への負担が大きくなる可能性があります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Ageing Population","grammarTags":[]},{"id":198,"english":"Healthcare costs rise with a growing elderly  population.","japanese":"高齢者が増えることで医療費が上昇します。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Ageing Population","grammarTags":[]},{"id":199,"english":"Rapid aging causes shortages in the  caregiving workforce.","japanese":"急速な高齢化により介護人材が不足します。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Ageing Population","grammarTags":[]},{"id":200,"english":"A consumer society stimulates economic  growth through high demand for goods and  services.","japanese":"消費社会は、商品やサービスへの高い需要を通じて経済成長を促進します。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Consumer Society","grammarTags":[]},{"id":201,"english":"Constant consumption generates  employment in sectors like retail and logistics.","japanese":"継続的な消費が小売業や物流業などの分野で雇用を生み出します。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Consumer Society","grammarTags":[]},{"id":202,"english":"Diverse product availability allows consumers  to choose according to their preferences.","japanese":"多様な商品が手に入ることで、消費者は自分の好みに応じて選ぶことができます。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Consumer Society","grammarTags":[]},{"id":203,"english":"Mass production lowers the cost of goods  and increases accessibility.","japanese":"大量生産が商品の価格を下げ、入手のしやすさを高めます。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Consumer Society","grammarTags":[]},{"id":204,"english":"Excessive consumption accelerates  environmental degradation and climate  change.","japanese":"過剰消費が環境破壊と気候変動を加速させます。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Consumer Society","grammarTags":[]},{"id":205,"english":"Psychological stress increases due to social  pressure to keep up with trends.","japanese":"流行に追いつこうとする社会的プレッシャーが心理的ストレスを増加させます。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Consumer Society","grammarTags":[]},{"id":206,"english":"Low-cost mass production in developing  countries is made possible by unethical labor  practices and harsh working environments.","japanese":"発展途上国における低コストの大量生産は、非倫理的な労働慣行と過酷な労働環境によって可能になっています。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Consumer Society","grammarTags":[]},{"id":207,"english":"An increasing number of private cars  contributes to road congestion.","japanese":"自家用車の増加が道路の混雑を引き起こしています。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Traffic Congestion","grammarTags":[]},{"id":208,"english":"Poor public transport forces people to rely on  personal vehicles.","japanese":"公共交通機関が不十分なため、人々は自家用車に頼らざるを得ません。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Traffic Congestion","grammarTags":[]},{"id":209,"english":"Peak-hour commuting causes sudden surges  in road usage.","japanese":"通勤ラッシュ時に交通量が急増することで渋滞が発生します。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Traffic Congestion","grammarTags":[]},{"id":210,"english":"Road accidents and breakdowns often block  traffic for extended periods.","japanese":"交通事故や故障車が長時間にわたり道路をふさぐことがよくあります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Traffic Congestion","grammarTags":[]},{"id":211,"english":"Lack of cycling lanes and pedestrian paths  discourages people from cycling or walking.","japanese":"自転車レーンや歩道が整備されていないことで、人々は自転車や徒歩での移動を避けるようになります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Traffic Congestion","grammarTags":[]},{"id":212,"english":"Expanding and improving public transport can  reduce car dependency.","japanese":"公共交通機関の拡充と改善が自動車への依存を減らします。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Traffic Congestion","grammarTags":["participial"]},{"id":213,"english":"Carpooling and ride-sharing reduce the  number of vehicles on the road.","japanese":"カープールやライドシェアが道路上の車の数を減らします。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Traffic Congestion","grammarTags":["participial"]},{"id":214,"english":"Implementing congestion charges can  discourage driving during peak hours.","japanese":"混雑料金の導入によってラッシュ時の運転を抑制できます。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Traffic Congestion","grammarTags":["participial"]},{"id":215,"english":"Discrimination based on gender remains a  problem in many parts of the world.","japanese":"性別に基づく差別は、今なお多くの地域で問題となっています。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Gender Issues","grammarTags":[]},{"id":216,"english":"Traditional gender roles often limit personal  freedom and choice.","japanese":"伝統的な性別役割は、個人の自由や選択をしばしば制限します。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Gender Issues","grammarTags":[]},{"id":217,"english":"Many cultures have long believed that men  should be providers and women should be  caregivers.","japanese":"多くの文化では、男性は稼ぎ手であるべきであり、女性は世話をする役割を担うべきだと長い間信じられてきました。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Gender Issues","grammarTags":[]},{"id":218,"english":"Men who choose to become stay-at-home  fathers may face social stigma.","japanese":"専業主夫になることを選んだ男性は、社会的な偏見に直面することがあります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Gender Issues","grammarTags":["relative_pronoun"]},{"id":219,"english":"Some men feel pressure to conform to  traditional masculine ideals.","japanese":"一部の男性は、伝統的な男らしさの理想像に従うプレッシャーを感じています。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Gender Issues","grammarTags":[]},{"id":220,"english":"Women have traditionally been seen as  caretakers and homemakers.","japanese":"女性は伝統的に世話役や家庭を守る存在と見なされてきました。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Gender Issues","grammarTags":[]},{"id":221,"english":"Societal expectations often pressure women  to prioritize family over career.","japanese":"社会の期待が、女性にキャリアより家庭を優先するよう求めがちです。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Gender Issues","grammarTags":[]},{"id":222,"english":"Social attitudes toward gender roles are  slowly changing in modern societies.","japanese":"現代社会では、性別役割に対する社会の意識がゆっくりと変化しています。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Gender Issues","grammarTags":[]},{"id":223,"english":"Equal opportunities in education help close  the gender gap in society.","japanese":"教育の機会均等が、社会におけるジェンダー格差の解消に役立ちます。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Gender Issues","grammarTags":[]},{"id":224,"english":"More women are taking leadership positions  in politics and business.","japanese":"より多くの女性が、政治やビジネスのリーダー的地位に就いています。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Gender Issues","grammarTags":[]},{"id":225,"english":"Many companies now promote equal pay for  men and women.","japanese":"多くの企業が、男女平等な賃金を推進しています。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Gender Issues","grammarTags":[]},{"id":226,"english":"Gender diversity in the workplace leads to  more creativity and better decision-making.","japanese":"職場でのジェンダー多様性は、創造性や意思決定の質の向上につながります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Gender Issues","grammarTags":[]},{"id":227,"english":"Poverty and lack of education are major  causes of criminal behavior.","japanese":"貧困と教育の欠如は、犯罪行動の主な原因です。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Crime","grammarTags":[]},{"id":228,"english":"Some people turn to crime as a last resort to  survive.","japanese":"一部の人々は生き延びるために最後の手段として犯罪に手を染めます。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Crime","grammarTags":[]},{"id":229,"english":"Many former prisoners reoffend due to a lack  of support after release.","japanese":"多くの元受刑者が、出所後の支援不足により再犯に至っています。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Crime","grammarTags":[]},{"id":230,"english":"A criminal record makes it difficult for  ex-offenders to find employment.","japanese":"前科があると、元受刑者の就職が困難になります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Crime","grammarTags":[]},{"id":231,"english":"Access to education and vocational training  can reduce recidivism rates.","japanese":"教育および職業訓練へのアクセスは、再犯率を低下させる可能性があります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Crime","grammarTags":[]},{"id":232,"english":"Rehabilitation is often more effective than  imprisonment in reducing criminal activity.","japanese":"更生は、犯罪行為の抑制において投獄より効果的なことがあります。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Crime","grammarTags":[]},{"id":233,"english":"Reducing stigma against ex-offenders  encourages reintegration into society.","japanese":"前科者に対する偏見を減らすことが、社会復帰を促進します。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Crime","grammarTags":["participial"]},{"id":234,"english":"Harsh punishments, such as long prison  sentences and substantial fines, may not  always deter potential offenders.","japanese":"長期の懲役刑や高額の罰金といった厳しい罰は、必ずしも潜在的な犯罪者を思いとどまらせるとは限りません。","topic":"Social Issues","topicJp":"社会問題","subtopic":"Crime","grammarTags":[]},{"id":235,"english":"Advances in communication technologies,  such as the internet and smartphones, have  made global interaction faster and easier.","japanese":"インターネットやスマートフォンなどの通信技術の進歩が、国際的な交流をより迅速かつ容易にしました。","topic":"Culture","topicJp":"文化","subtopic":"Globalisation","grammarTags":[]},{"id":236,"english":"Improvements in transport have reduced the  cost and time of moving goods and people  across borders.","japanese":"輸送手段の向上により、モノや人の国境を越えた移動のコストと時間が削減されました。","topic":"Culture","topicJp":"文化","subtopic":"Globalisation","grammarTags":[]},{"id":237,"english":"Globalisation has made it easier for people to  access products from all over the world.","japanese":"グローバル化により、世界中の製品に簡単にアクセスできるようになりました。","topic":"Culture","topicJp":"文化","subtopic":"Globalisation","grammarTags":[]},{"id":238,"english":"Many multinational companies benefit from  globalisation by expanding into international  markets.","japanese":"多くの多国籍企業は、国際市場への進出を通じてグローバル化の恩恵を受けています。","topic":"Culture","topicJp":"文化","subtopic":"Globalisation","grammarTags":[]},{"id":239,"english":"Globalisation allows people to experience  different cultures through food, music, and  media.","japanese":"グローバル化により、人々は食べ物、音楽、メディアを通じて異なる文化を体験できます。","topic":"Culture","topicJp":"文化","subtopic":"Globalisation","grammarTags":[]},{"id":240,"english":"Some people fear that globalisation threatens  local traditions and cultural identities.","japanese":"グローバル化が地域の伝統や文化的アイデンティティを脅かすことを懸念する人もいます。","topic":"Culture","topicJp":"文化","subtopic":"Globalisation","grammarTags":[]},{"id":241,"english":"The rise of global corporations can harm  small local businesses that cannot compete.","japanese":"世界的企業の台頭により、競争できない地元の小規模企業が打撃を受けることがあります。","topic":"Culture","topicJp":"文化","subtopic":"Globalisation","grammarTags":[]},{"id":242,"english":"Learning about foreign cultures helps people  develop a deeper appreciation and  understanding of diversity.","japanese":"外国の文化について学ぶことは、人々が多様性への敬意と理解をより深める助けとなります。","topic":"Culture","topicJp":"文化","subtopic":"Foreign Cultures","grammarTags":["participial"]},{"id":243,"english":"Learning about other cultures helps reduce  prejudice and promotes peaceful  coexistence.","japanese":"他文化の理解は偏見を減らし、平和的共存を促進します。","topic":"Culture","topicJp":"文化","subtopic":"Foreign Cultures","grammarTags":["participial"]},{"id":244,"english":"Studying abroad is one of the most effective  ways to immerse yourself in a new culture.","japanese":"留学は、新しい文化を深く体験するための最も効果的な方法の一つです。","topic":"Culture","topicJp":"文化","subtopic":"Foreign Cultures","grammarTags":["participial"]},{"id":245,"english":"The internet has made it easier than ever to  learn about different lifestyles and traditions.","japanese":"インターネットの普及により、さまざまな生活様式や伝統を学ぶことがかつてないほど容易になりました。","topic":"Culture","topicJp":"文化","subtopic":"Foreign Cultures","grammarTags":[]},{"id":246,"english":"Learning about the local culture before  travelling helps tourists avoid offending local  people unintentionally.","japanese":"旅行前に現地文化を学ぶことで、観光客が無意識に地元の人々を不快にさせるのを防ぐことができます。","topic":"Culture","topicJp":"文化","subtopic":"Foreign Cultures","grammarTags":["participial"]},{"id":247,"english":"International tourism has become a major  source of income for many countries.","japanese":"国際観光は多くの国にとって主要な収入源となっています。","topic":"Culture","topicJp":"文化","subtopic":"Tourism","grammarTags":[]},{"id":248,"english":"Travelling to foreign countries allows people  to experience cultural diversity firsthand and  broaden their perspectives.","japanese":"外国を旅行することで、人々は文化の多様性を直接体験し、自分の視野を広げることができます。","topic":"Culture","topicJp":"文化","subtopic":"Tourism","grammarTags":["participial"]},{"id":249,"english":"International tourism encourages mutual","japanese":"国際観光は国と国の相互理解を促進します。","topic":"Culture","topicJp":"文化","subtopic":"Tourism","grammarTags":[]},{"id":250,"english":"The growth of international tourism has  created millions of jobs worldwide.","japanese":"国際観光の成長は、世界中で何百万もの雇用を生み出しています。","topic":"Culture","topicJp":"文化","subtopic":"Tourism","grammarTags":[]},{"id":251,"english":"The construction of hotels and resorts often  leads to deforestation and the loss of  biodiversity.","japanese":"ホテルやリゾートの建設は、森林伐採や生物多様性の喪失につながることがあります。","topic":"Culture","topicJp":"文化","subtopic":"Tourism","grammarTags":[]},{"id":252,"english":"Popular tourist destinations often suffer from  overcrowding, which can diminish the quality  of life for local residents.","japanese":"人気の観光地では過密化が問題となり、地元住民の生活の質が低下することがあります。","topic":"Culture","topicJp":"文化","subtopic":"Tourism","grammarTags":["relative_pronoun"]},{"id":253,"english":"Over-reliance on tourism makes local  economies vulnerable to global crises, such  as pandemics.","japanese":"観光業への過度な依存は、パンデミックなどの世界的な危機に対して地域経済を脆弱にします。","topic":"Culture","topicJp":"文化","subtopic":"Tourism","grammarTags":[]},{"id":254,"english":"Having a well-planned itinerary makes your  trip more organized and time-efficient.","japanese":"よく練られた旅程があれば、旅行をより計画的かつ効率的に進めることができます。","topic":"Culture","topicJp":"文化","subtopic":"Tourism","grammarTags":["participial"]},{"id":255,"english":"Strict schedules may limit spontaneous  experiences and reduce the chance for  serendipity.","japanese":"厳格な予定は、自発的な行動による自由な体験が難しくなり、偶然の幸運な出会い（セレンディピティ）の機会も減ってしまいます。","topic":"Culture","topicJp":"文化","subtopic":"Tourism","grammarTags":[]},{"id":256,"english":"International sports events promote peace  and understanding among nations.","japanese":"国際スポーツ大会は、国家間の平和と理解を促進します。","topic":"Culture","topicJp":"文化","subtopic":"International Sporting Events","grammarTags":[]},{"id":257,"english":"Global tournaments allow athletes to gain  recognition and experience at an international  level.","japanese":"世界的な大会は、選手たちに国際的な認知と経験を得る機会を提供します。","topic":"Culture","topicJp":"文化","subtopic":"International Sporting Events","grammarTags":[]},{"id":258,"english":"Hosting a major sporting event can stimulate  economic growth through tourism and job  creation.","japanese":"大規模なスポーツイベントの開催は、観光や雇用創出を通じて経済成長を促進します。","topic":"Culture","topicJp":"文化","subtopic":"International Sporting Events","grammarTags":["participial"]},{"id":259,"english":"A successful event can enhance a country's  global image and diplomatic influence.","japanese":"大会を成功させることで、国の国際的なイメージと外交的影響力を高めることができます。","topic":"Culture","topicJp":"文化","subtopic":"International Sporting Events","grammarTags":[]},{"id":260,"english":"Hosting international sports events often  imposes a heavy financial burden on  taxpayers.","japanese":"国際スポーツ大会の開催は、多くの場合、納税者に大きな財政的負担をかけます。","topic":"Culture","topicJp":"文化","subtopic":"International Sporting Events","grammarTags":["participial"]},{"id":261,"english":"Newly constructed venues sometimes  become abandoned after the event  concludes.","japanese":"新たに建設された会場が、イベント終了後に放棄されてしまうことがあります。","topic":"Culture","topicJp":"文化","subtopic":"International Sporting Events","grammarTags":[]},{"id":262,"english":"People's clothing choices often reflect their  personality, lifestyle, and even values.","japanese":"人々の服の選択は、性格やライフスタイル、さらには価値観を反映することがよくあります。","topic":"Culture","topicJp":"文化","subtopic":"Fashion","grammarTags":[]},{"id":263,"english":"In many cultures, traditional clothing is worn  on special occasions to preserve cultural  identity.","japanese":"多くの文化では、文化的アイデンティティを守るために、特別な機会に伝統的な衣装が着用されます。","topic":"Culture","topicJp":"文化","subtopic":"Fashion","grammarTags":[]},{"id":264,"english":"Formal fashion is typically required in  professional settings such as job interviews,  business meetings, and corporate events.","japanese":"フォーマルな服装は、就職面接、ビジネス会議、企業イベントなどの職業的な場面で一般的に求められます。","topic":"Culture","topicJp":"文化","subtopic":"Fashion","grammarTags":[]},{"id":265,"english":"A well-designed outfit should strike a balance  between functionality and appearance.","japanese":"優れたデザインの服は、機能性と見た目の両方のバランスを取るべきです。","topic":"Culture","topicJp":"文化","subtopic":"Fashion","grammarTags":[]},{"id":266,"english":"Fast fashion has made trendy clothing more  affordable, but it raises environmental  concerns.","japanese":"ファストファッションは流行の服をより手頃にしましたが、環境への懸念も引き起こしています。","topic":"Culture","topicJp":"文化","subtopic":"Fashion","grammarTags":[]},{"id":267,"english":"Young generations are more open to trying  new and exotic foods compared to older  generations.","japanese":"若い世代は、年配の世代と比べて、新しい食べ物や外国の珍しい料理に対してより積極的です。","topic":"Culture","topicJp":"文化","subtopic":"Food","grammarTags":[]},{"id":268,"english":"Cultural food traditions are at risk as people  adopt more Westernised eating habits.","japanese":"西洋化した食習慣を取り入れる人が増える中で、伝統的な食文化が失われつつあります。","topic":"Culture","topicJp":"文化","subtopic":"Food","grammarTags":[]},{"id":269,"english":"Modern lifestyles have led many people to  rely on fast food due to busy schedules.","japanese":"現代のライフスタイルでは、多忙なスケジュールのためにファストフードに頼る人が増えています。","topic":"Culture","topicJp":"文化","subtopic":"Food","grammarTags":[]},{"id":270,"english":"Processed foods are widely consumed, but  they are often linked to health problems such  as obesity and diabetes.","japanese":"加工食品は広く消費されていますが、肥満や糖尿病などの健康問題に関連しています。","topic":"Culture","topicJp":"文化","subtopic":"Food","grammarTags":[]},{"id":271,"english":"There is a growing awareness of nutrition and  balanced diets among consumers today.","japanese":"今日では、消費者の間で栄養やバランスの取れた食事に対する意識が高まっています。","topic":"Culture","topicJp":"文化","subtopic":"Food","grammarTags":[]},{"id":272,"english":"Single-use plastic waste in oceans threatens  marine ecosystems.","japanese":"海洋における使い捨てプラスチックごみは、海洋生態系を脅かしています。","topic":"Environment","topicJp":"環境","subtopic":"Environmental Issues","grammarTags":[]},{"id":273,"english":"Water pollution endangers both human health  and aquatic life.","japanese":"水質汚染は人間の健康と水中生物の両方を危険にさらします。","topic":"Environment","topicJp":"環境","subtopic":"Environmental Issues","grammarTags":[]},{"id":274,"english":"Air pollution from factories contributes to  global warming.","japanese":"工場からの大気汚染は地球温暖化の一因です。","topic":"Environment","topicJp":"環境","subtopic":"Environmental Issues","grammarTags":[]},{"id":275,"english":"Climate change is causing more frequent  natural disasters, such as floods, wildfires,  and hurricanes.","japanese":"気候変動は、洪水、山火事、ハリケーンなどの自然災害の頻度を増加させています。","topic":"Environment","topicJp":"環境","subtopic":"Environmental Issues","grammarTags":[]},{"id":276,"english":"Urbanisation, like city expansion and new  housing developments, often destroys natural  habitats.","japanese":"都市の拡大や新しい住宅開発といった都市化は、しばしば自然の生息地を破壊します。","topic":"Environment","topicJp":"環境","subtopic":"Environmental Issues","grammarTags":[]},{"id":277,"english":"Deforestation contributes significantly to  global warming.","japanese":"森林伐採は地球温暖化に大きく寄与しています。","topic":"Environment","topicJp":"環境","subtopic":"Environmental Issues","grammarTags":[]},{"id":278,"english":"The extinction of one species can disrupt  entire ecosystems.","japanese":"一つの種の絶滅は生態系全体を混乱させる可能性があります。","topic":"Environment","topicJp":"環境","subtopic":"Endangered Species","grammarTags":[]},{"id":279,"english":"Many species are becoming extinct due to  human activities, such as deforestation and  pollution.","japanese":"森林伐採や汚染などの人間の活動により、多くの種が絶滅しつつあります。","topic":"Environment","topicJp":"環境","subtopic":"Endangered Species","grammarTags":[]},{"id":280,"english":"Illegal hunting and poaching threaten the  survival of endangered species.","japanese":"違法な狩猟や密猟は絶滅危惧種の生存を脅かしています。","topic":"Environment","topicJp":"環境","subtopic":"Endangered Species","grammarTags":[]},{"id":281,"english":"Stricter laws and penalties should be  implemented to protect endangered flora and  fauna from illegal exploitation.","japanese":"絶滅の危機にある動植物を違法な搾取から守るために、より厳しい法律と罰則を導入すべきです。","topic":"Environment","topicJp":"環境","subtopic":"Endangered Species","grammarTags":[]},{"id":282,"english":"Establishing protected areas and national  parks can help preserve biodiversity.","japanese":"保護区や国立公園の設立は、生物多様性の維持に役立ちます。","topic":"Environment","topicJp":"環境","subtopic":"Endangered Species","grammarTags":["participial"]},{"id":283,"english":"Zoos conduct captive breeding programs to  increase the population of endangered  animals.","japanese":"動物園では、絶滅危惧種の個体数を増やすための飼育繁殖プログラムを実施しています。","topic":"Environment","topicJp":"環境","subtopic":"Endangered Species","grammarTags":[]},{"id":284,"english":"Botanical gardens offer educational programs  to teach visitors about sustainable  ecosystems.","japanese":"植物園は持続可能な生態系について学べる教育プログラムを提供しています。","topic":"Environment","topicJp":"環境","subtopic":"Endangered Species","grammarTags":[]},{"id":285,"english":"Renewable sources are often more  environmentally friendly than conventional  ones.","japanese":"再生可能エネルギー源は通常、従来のものよりも環境に優しいです。","topic":"Environment","topicJp":"環境","subtopic":"Renewable Energy","grammarTags":[]},{"id":286,"english":"Unlike fossil fuels, renewable energy sources  do not deplete over time.","japanese":"化石燃料とは異なり、再生可能エネルギーは時間とともに枯渇しません。","topic":"Environment","topicJp":"環境","subtopic":"Renewable Energy","grammarTags":[]},{"id":287,"english":"Hydroelectric power generates electricity by  using the flow of water.","japanese":"水力発電は水の流れを利用して電気を生み出します。","topic":"Environment","topicJp":"環境","subtopic":"Renewable Energy","grammarTags":[]},{"id":288,"english":"Solar energy harnesses the power of the sun  to generate electricity.","japanese":"太陽エネルギーは太陽の力を利用して電力を生み出します。","topic":"Environment","topicJp":"環境","subtopic":"Renewable Energy","grammarTags":[]},{"id":289,"english":"Geothermal energy taps into the heat stored  beneath the Earth's surface.","japanese":"地熱エネルギーは地球の地下に蓄えられた熱を活用します。","topic":"Environment","topicJp":"環境","subtopic":"Renewable Energy","grammarTags":[]},{"id":290,"english":"Fossil fuels like coal and oil are still the  primary energy sources worldwide.","japanese":"石炭や石油などの化石燃料は、依然として世界の主要なエネルギー源です。","topic":"Environment","topicJp":"環境","subtopic":"Renewable Energy","grammarTags":[]},{"id":291,"english":"Burning fossil fuels releases greenhouse  gases into the atmosphere.","japanese":"化石燃料を燃やすと温室効果ガスが大気中に放出されます。","topic":"Environment","topicJp":"環境","subtopic":"Renewable Energy","grammarTags":["participial"]},{"id":292,"english":"Recycling helps conserve natural resources  and reduces waste.","japanese":"リサイクルは天然資源の保護とごみの削減に役立ちます。","topic":"Environment","topicJp":"環境","subtopic":"Recycling","grammarTags":["participial"]},{"id":293,"english":"Many materials such as paper, glass, and  plastic can be recycled.","japanese":"紙、ガラス、プラスチックなど多くの素材はリサイクル可能です。","topic":"Environment","topicJp":"環境","subtopic":"Recycling","grammarTags":[]},{"id":294,"english":"Recycling reduces the need for landfills and  incineration.","japanese":"リサイクルは埋立地や焼却の必要性を減らします。","topic":"Environment","topicJp":"環境","subtopic":"Recycling","grammarTags":["participial"]},{"id":295,"english":"Proper sorting of waste is essential for  efficient recycling.","japanese":"効率的なリサイクルにはごみの適切な分別が不可欠です。","topic":"Environment","topicJp":"環境","subtopic":"Recycling","grammarTags":[]},{"id":296,"english":"Some people still throw recyclable items into  general waste.","japanese":"一部の人々はいまだにリサイクル可能なものを一般ごみに捨てています。","topic":"Environment","topicJp":"環境","subtopic":"Recycling","grammarTags":[]},{"id":297,"english":"Consumers should choose products made  from recycled materials.","japanese":"消費者はリサイクル素材から作られた製品を選ぶべきです。","topic":"Environment","topicJp":"環境","subtopic":"Recycling","grammarTags":[]},{"id":298,"english":"Supermarkets often discard products that are  close to their expiry dates.","japanese":"スーパーマーケットは消費期限が近い商品をしばしば廃棄します。","topic":"Environment","topicJp":"環境","subtopic":"Food Waste","grammarTags":["relative_pronoun"]},{"id":299,"english":"Large portion sizes in restaurants often result  in leftovers.","japanese":"レストランでの大きすぎる盛り付けは、しばしば食べ残しにつながります。","topic":"Environment","topicJp":"環境","subtopic":"Food Waste","grammarTags":[]},{"id":300,"english":"Farmers may discard crops that are not  visually appealing instead of sending them to  market.","japanese":"農家は、見た目の良くない作物を市場に出すことなく廃棄する場合があります。","topic":"Environment","topicJp":"環境","subtopic":"Food Waste","grammarTags":["relative_pronoun"]},{"id":301,"english":"Restaurants can donate surplus food to local  charities.","japanese":"レストランは余った食材を地元の慈善団体に寄付できます。","topic":"Environment","topicJp":"環境","subtopic":"Food Waste","grammarTags":[]},{"id":302,"english":"Consumers should plan meals in advance to  avoid buying excess food.","japanese":"消費者は過剰な食品の購入を避けるために、事前に食事計画を立てるべきです。","topic":"Environment","topicJp":"環境","subtopic":"Food Waste","grammarTags":[]},{"id":303,"english":"Food banks collect unwanted food and  distribute it to those in need.","japanese":"フードバンクは不要な食品を集め、必要としている人々に配布します。","topic":"Environment","topicJp":"環境","subtopic":"Food Waste","grammarTags":[]},{"id":304,"english":"Employers should promote flexible working  hours to support work-life balance.","japanese":"雇用主は、ワークライフバランスを支援するために柔軟な勤務時間を促進すべきです。","topic":"Work","topicJp":"仕事","subtopic":"Work–Life Balance","grammarTags":[]},{"id":305,"english":"Maintaining a healthy work-life balance is  essential for mental and physical well-being.","japanese":"健康的なワークライフバランスを保つことは、心身の健康にとって不可欠です。","topic":"Work","topicJp":"仕事","subtopic":"Work–Life Balance","grammarTags":["participial"]},{"id":306,"english":"Remote work has allowed many employees  to better manage their personal and  professional lives.","japanese":"リモートワークにより、多くの従業員が仕事と私生活の両立をしやすくなりました。","topic":"Work","topicJp":"仕事","subtopic":"Work–Life Balance","grammarTags":[]},{"id":307,"english":"Achieving work-life balance can lead to  higher job satisfaction and employee  retention.","japanese":"ワークライフバランスの実現は、仕事への満足度や従業員の定着率の向上につながります。","topic":"Work","topicJp":"仕事","subtopic":"Work–Life Balance","grammarTags":["participial"]},{"id":308,"english":"Long working hours can lead to stress,  burnout, and reduced productivity.","japanese":"長時間労働はストレスや燃え尽き症候群、生産性の低下を引き起こす可能性があります。","topic":"Work","topicJp":"仕事","subtopic":"Work–Life Balance","grammarTags":[]},{"id":309,"english":"In some cultures, working overtime is seen as  a sign of dedication.","japanese":"一部の文化では、残業が献身の証とみなされています。","topic":"Work","topicJp":"仕事","subtopic":"Work–Life Balance","grammarTags":["participial"]},{"id":310,"english":"Employers benefit from reduced office costs  when employees work remotely.","japanese":"従業員がリモートで働くことで、雇用主はオフィス経費の削減という恩恵を受けます。","topic":"Work","topicJp":"仕事","subtopic":"Remote Work","grammarTags":[]},{"id":311,"english":"Working from home allows employees to  save time and money on commuting.","japanese":"在宅勤務は、通勤にかかる時間と費用を節約することができます。","topic":"Work","topicJp":"仕事","subtopic":"Remote Work","grammarTags":["participial"]},{"id":312,"english":"Some people find it easier to concentrate in a  home environment, while others feel isolated.","japanese":"自宅の方が集中しやすいと感じる人もいれば、孤独を感じる人もいます。","topic":"Work","topicJp":"仕事","subtopic":"Remote Work","grammarTags":[]},{"id":313,"english":"Remote work offers more flexibility but  requires strong time management skills.","japanese":"リモートワークは柔軟性が高い反面、優れた時間管理能力が求められます。","topic":"Work","topicJp":"仕事","subtopic":"Remote Work","grammarTags":[]},{"id":314,"english":"One challenge of remote work is the lack of  face-to-face communication.","japanese":"リモートワークの課題の一つは、対面でのコミュニケーションが取れないことです。","topic":"Work","topicJp":"仕事","subtopic":"Remote Work","grammarTags":[]},{"id":315,"english":"Not all jobs are suitable for remote work,  especially in industries requiring physical  presence.","japanese":"すべての仕事がリモートワークに適しているわけではなく、特に現地での勤務が求められる業界では難しいことがあります。","topic":"Work","topicJp":"仕事","subtopic":"Remote Work","grammarTags":[]},{"id":316,"english":"Some companies are adopting hybrid work  models that combine remote and office work.","japanese":"一部の企業は、リモートワークと出社勤務を組み合わせたハイブリッド型の働き方を導入しています。","topic":"Work","topicJp":"仕事","subtopic":"Remote Work","grammarTags":[]},{"id":317,"english":"Being an employee provides stable income  and job security.","japanese":"会社員は安定した収入と雇用保障が得られます。","topic":"Work","topicJp":"仕事","subtopic":"Employees vs the Self-Employed","grammarTags":["participial"]},{"id":318,"english":"Employees often receive benefits such as  health insurance and paid holidays.","japanese":"会社員は健康保険や有給休暇などの福利厚生を受けられることが多いです。","topic":"Work","topicJp":"仕事","subtopic":"Employees vs the Self-Employed","grammarTags":[]},{"id":319,"english":"Self-employment offers more independence  and control over one’s work.","japanese":"自営業は、自分の仕事に対してより高い自由度と裁量をもたらします。","topic":"Work","topicJp":"仕事","subtopic":"Employees vs the Self-Employed","grammarTags":[]},{"id":320,"english":"Working independently requires a wide range  of skills, such as marketing, financial  management, and customer service.","japanese":"個人で働くには、マーケティング、財務管理、顧客対応などの幅広いスキルが求められます。","topic":"Work","topicJp":"仕事","subtopic":"Employees vs the Self-Employed","grammarTags":["participial"]},{"id":321,"english":"Many countries are raising the retirement age","japanese":"多くの国で平均寿命の延びにより、定年年齢が","topic":"Work","topicJp":"仕事","subtopic":"Retirement","grammarTags":[]},{"id":322,"english":"due to longer life expectancy.","japanese":"引き上げられています。","topic":"Work","topicJp":"仕事","subtopic":"Retirement","grammarTags":[]},{"id":323,"english":"Some argue that mandatory retirement is age  discrimination and should be abolished.","japanese":"定年制度は年齢差別であり、廃止すべきだと主張する人もいます。","topic":"Work","topicJp":"仕事","subtopic":"Retirement","grammarTags":[]},{"id":324,"english":"Continuing to work after retirement can help  people stay financially secure and keep their  minds active.","japanese":"退職後も働き続けることは、経済的な安定を保ち、脳を活発にすることに役立ちます。","topic":"Work","topicJp":"仕事","subtopic":"Retirement","grammarTags":["participial"]},{"id":325,"english":"Employers may be reluctant to hire older  workers due to concerns about productivity.","japanese":"生産性への懸念から、雇用主が高齢者の採用をためらうことがあります。","topic":"Work","topicJp":"仕事","subtopic":"Retirement","grammarTags":[]},{"id":326,"english":"Retirement allows people to pursue hobbies,  travel, and enjoy quality time with family.","japanese":"退職後は、趣味を楽しんだり、旅行をしたり、家族との充実した時間を過ごすことができます。","topic":"Work","topicJp":"仕事","subtopic":"Retirement","grammarTags":[]},{"id":327,"english":"Retired people often rely on government  pensions or personal savings.","japanese":"定年退職後の人々は、年金や個人の貯蓄に頼ることが多いです。","topic":"Work","topicJp":"仕事","subtopic":"Retirement","grammarTags":[]},{"id":328,"english":"Advances in treatments like chemotherapy  and cardiac surgery have greatly reduced the  impact of serious diseases.","japanese":"化学療法や心臓手術などの治療の進歩により、深刻な病気の影響は大きく軽減されました。","topic":"Health","topicJp":"健康","subtopic":"Illness","grammarTags":[]},{"id":329,"english":"Early detection of disease can greatly  increase the chances of successful treatment.","japanese":"病気の早期発見は、治療の成功率を大幅に高める可能性があります。","topic":"Health","topicJp":"健康","subtopic":"Illness","grammarTags":[]},{"id":330,"english":"Vaccinations have helped eliminate deadly  diseases like smallpox and polio.","japanese":"ワクチン接種は、天然痘やポリオのような致命的な病気の根絶に貢献してきました。","topic":"Health","topicJp":"健康","subtopic":"Illness","grammarTags":[]},{"id":331,"english":"Stress, anxiety, and depression are common  mental health issues in modern society.","japanese":"現代社会では、ストレス、不安、うつ病が一般的なメンタルヘルスの問題です。","topic":"Health","topicJp":"健康","subtopic":"Illness","grammarTags":[]},{"id":332,"english":"The cost of treatment can be a major barrier  for people living in poverty.","japanese":"治療費の高さは、貧困層にとって大きな障壁となることがあります。","topic":"Health","topicJp":"健康","subtopic":"Illness","grammarTags":[]},{"id":333,"english":"Obesity has become a major public health  issue in many developed countries.","japanese":"肥満は多くの先進国で深刻な公衆衛生の問題となっています。","topic":"Health","topicJp":"健康","subtopic":"Obesity","grammarTags":[]},{"id":334,"english":"Obesity can lead to serious health conditions","japanese":"肥満は糖尿病や高血圧、心臓病などの深刻な","topic":"Health","topicJp":"健康","subtopic":"Obesity","grammarTags":[]},{"id":335,"english":"such as diabetes, high blood pressure, and  heart disease.","japanese":"健康状態を引き起こす可能性があります。","topic":"Health","topicJp":"健康","subtopic":"Obesity","grammarTags":[]},{"id":336,"english":"Childhood obesity is increasing rapidly due to  high-calorie diets and lack of physical activity.","japanese":"高カロリーの食事と運動不足により、小児肥満が急増しています。","topic":"Health","topicJp":"健康","subtopic":"Obesity","grammarTags":[]},{"id":337,"english":"A sedentary lifestyle and poor diet are major  causes of being overweight.","japanese":"座りがちな生活と不健康な食生活は、太りすぎの主な原因です。","topic":"Health","topicJp":"健康","subtopic":"Obesity","grammarTags":[]},{"id":338,"english":"Fast food is high in sugar, fat, and salt, all of  which contribute to weight gain.","japanese":"ジャンクフードは砂糖、脂肪、塩分が多く、いずれも体重増加の原因になります。","topic":"Health","topicJp":"健康","subtopic":"Obesity","grammarTags":["relative_pronoun"]},{"id":339,"english":"Regular exercise and a balanced diet are key  components of a healthy lifestyle.","japanese":"定期的な運動とバランスの取れた食事は、健康的な生活の重要な要素です。","topic":"Health","topicJp":"健康","subtopic":"Daily Habits","grammarTags":[]},{"id":340,"english":"Unhealthy lifestyle habits such as smoking  and overeating can lead to serious health  problems.","japanese":"喫煙や過食などの不健康な生活習慣は、深刻な健康問題を引き起こす可能性があります。","topic":"Health","topicJp":"健康","subtopic":"Daily Habits","grammarTags":[]},{"id":341,"english":"Poor sleep habits can negatively affect both  mental and physical health.","japanese":"睡眠習慣が悪いと、心の健康と身体の健康の両方に悪影響を及ぼす可能性があります。","topic":"Health","topicJp":"健康","subtopic":"Daily Habits","grammarTags":[]},{"id":342,"english":"Many people struggle to maintain healthy  habits due to their busy schedules.","japanese":"多くの人が多忙なスケジュールのため、健康的な習慣を維持するのに苦労しています。","topic":"Health","topicJp":"健康","subtopic":"Daily Habits","grammarTags":[]},{"id":343,"english":"Happiness often comes from meaningful  relationships rather than material wealth.","japanese":"幸福はしばしば物質的な富ではなく、意味のある人間関係から生まれます。","topic":"Philosophy","topicJp":"哲学","subtopic":"Happiness","grammarTags":[]},{"id":344,"english":"Good physical and mental health is a strong  foundation for long-term happiness.","japanese":"健康な身体と心は、長期的な幸福の強固な土台です。","topic":"Philosophy","topicJp":"哲学","subtopic":"Happiness","grammarTags":[]},{"id":345,"english":"Pursuing passion in one's career can lead to  a more fulfilling life.","japanese":"自分の情熱を仕事にすることは、より充実した人生につながる可能性があります。","topic":"Philosophy","topicJp":"哲学","subtopic":"Happiness","grammarTags":["participial"]},{"id":346,"english":"Social connections and a sense of community  can significantly boost happiness.","japanese":"社会的つながりやコミュニティの一体感は、幸福感を大きく高めることがあります。","topic":"Philosophy","topicJp":"哲学","subtopic":"Happiness","grammarTags":[]},{"id":347,"english":"While financial success can improve one’s  lifestyle, it does not ensure happiness.","japanese":"経済的な成功は生活水準を向上させるかもしれませんが、幸福を保証するものではありません。","topic":"Philosophy","topicJp":"哲学","subtopic":"Happiness","grammarTags":[]},{"id":348,"english":"Success in modern society is often  associated with career achievement and  social status.","japanese":"現代社会における成功は、仕事上の成果や社会的地位と結びつけられることが多いです。","topic":"Philosophy","topicJp":"哲学","subtopic":"Success","grammarTags":[]},{"id":349,"english":"Many people define success not by wealth,  but by personal fulfillment and happiness.","japanese":"多くの人は、成功を富ではなく、自己の充実感や幸福によって定義します。","topic":"Philosophy","topicJp":"哲学","subtopic":"Success","grammarTags":[]},{"id":350,"english":"True success lies in achieving personal goals  and living according to one’s values.","japanese":"真の成功とは、自分の目標を達成し、自分の価値観に従って生きることにあります。","topic":"Philosophy","topicJp":"哲学","subtopic":"Success","grammarTags":[]},{"id":351,"english":"Success is often the result of consistent effort  and perseverance.","japanese":"成功はしばしば、継続的な努力と忍耐の結果として得られます。","topic":"Philosophy","topicJp":"哲学","subtopic":"Success","grammarTags":[]},{"id":352,"english":"Success requires not only talent, but also  discipline and a strong work ethic.","japanese":"成功には、才能だけでなく、規律と強い労働倫理も必要です。","topic":"Philosophy","topicJp":"哲学","subtopic":"Success","grammarTags":[]},{"id":353,"english":"Risk-taking helps people step outside their  comfort zone and build confidence.","japanese":"リスクを取ることは、人々が快適な環境から抜け出し、自信を築くのに役立ちます。","topic":"Philosophy","topicJp":"哲学","subtopic":"Risk","grammarTags":[]},{"id":354,"english":"Calculated risks, when taken wisely, can open  up unexpected opportunities.","japanese":"賢く取られた計算されたリスクは、思いがけない機会を生み出すことがあります。","topic":"Philosophy","topicJp":"哲学","subtopic":"Risk","grammarTags":[]},{"id":355,"english":"Investing money in the stock market or real  estate carries the risk of financial loss.","japanese":"株式市場や不動産への投資は、経済的損失のリスクを伴います。","topic":"Philosophy","topicJp":"哲学","subtopic":"Risk","grammarTags":["participial"]},{"id":356,"english":"Even after changing jobs, there is no  guarantee that the new role will be a good fit  in terms of responsibilities or organisational  culture.","japanese":"転職をしても、新しい職務が業務内容や組織文化の面で適しているという確証はありません。","topic":"Philosophy","topicJp":"哲学","subtopic":"Risk","grammarTags":[]},{"id":357,"english":"Relocating to a new city or country can pose  serious personal risks.","japanese":"新しい都市や国への引っ越しは、大きな個人的リスクを伴う可能性があります。","topic":"Philosophy","topicJp":"哲学","subtopic":"Risk","grammarTags":["participial"]}];
+
+// ── TOPICS META ──
+const TOPIC_META = {
+  'Technology':    {emoji:'💻', jp:'テクノロジー'},
+  'Education':     {emoji:'📖', jp:'教育'},
+  'The Media':     {emoji:'🗞️', jp:'メディア'},
+  'Social Issues': {emoji:'🚨', jp:'社会問題'},
+  'Culture':       {emoji:'🌐', jp:'文化'},
+  'Environment':   {emoji:'🌱', jp:'環境'},
+  'Work':          {emoji:'🏢', jp:'仕事'},
+  'Health':        {emoji:'🏥', jp:'健康'},
+  'Philosophy':    {emoji:'🧠', jp:'哲学'},
+};
+
+// ── SRS ──
+const SRS_KEY = 'ielts_srs_v1';
+
+function loadSRS() {
+  try { return JSON.parse(localStorage.getItem(SRS_KEY) || '{}'); }
+  catch(e) { return {}; }
+}
+function saveSRS(data) {
+  localStorage.setItem(SRS_KEY, JSON.stringify(data));
+}
+
+function getCardState(id, srs) {
+  return srs[id] || {interval:1, repetitions:0, easeFactor:2.5, dueDate:0};
+}
+
+function applyRating(state, rating) {
+  const s = Object.assign({}, state);
+  if (rating === 0) { // ✗ again
+    s.interval = 1;
+    s.repetitions = 0;
+    s.easeFactor = Math.max(1.3, s.easeFactor - 0.2);
+  } else if (rating === 1) { // △ hard
+    s.interval = Math.max(1, Math.round(s.interval * 1.2));
+    s.easeFactor = Math.max(1.3, s.easeFactor - 0.15);
+  } else { // ○ good
+    if (s.repetitions === 0) s.interval = 1;
+    else if (s.repetitions === 1) s.interval = 6;
+    else s.interval = Math.round(s.interval * s.easeFactor);
+    s.repetitions++;
+    s.easeFactor = Math.min(2.5, s.easeFactor + 0.1);
+  }
+  s.dueDate = Date.now() + s.interval * 24 * 60 * 60 * 1000;
+  return s;
+}
+
+function isDue(id, srs) {
+  return Date.now() >= getCardState(id, srs).dueDate;
+}
+
+function masteryLevel(id, srs) {
+  const s = getCardState(id, srs);
+  if (s.dueDate === 0) return 0; // new
+  if (s.repetitions >= 4) return 3; // mastered
+  if (s.repetitions >= 2) return 2; // learning
+  return 1; // seen
+}
+
+// ── STUDY SESSION STATE ──
+let sessionCards = [];
+let sessionIdx = 0;
+let sessionSRS = {};
+let sessionStats = {again:0, hard:0, good:0};
+let sessionMode = '';
+let currentTopicFilter = '';
+let currentSubtopicFilter = '';
+
+function buildStudyDeck(cards, srs, mode) {
+  // mode: 'all' | 'due' | 'new_and_due'
+  const now = Date.now();
+  let due = [], newCards = [], future = [];
+  for (const c of cards) {
+    const s = getCardState(c.id, srs);
+    if (s.dueDate === 0) newCards.push(c);
+    else if (now >= s.dueDate) due.push(c);
+    else future.push(c);
+  }
+  if (mode === 'all') return [...due, ...newCards, ...future];
+  if (mode === 'due') return [...due, ...newCards.slice(0, Math.max(0, 20 - due.length))];
+  return [...due, ...newCards]; // new_and_due
+}
+
+// ── NAVIGATION ──
+let screenHistory = [];
+let currentScreen = 'home';
+
+function showScreen(name, push=true) {
+  if (push && currentScreen !== name) screenHistory.push(currentScreen);
+  document.querySelectorAll('.screen').forEach(s => {
+    s.style.display = 'none';
+    s.classList.remove('active');
+  });
+  const el = document.getElementById('screen-' + name);
+  const flexScreens = ['study','list'];
+  el.style.display = flexScreens.includes(name) ? 'flex' : 'block';
+  el.style.flexDirection = flexScreens.includes(name) ? 'column' : '';
+  el.classList.add('active');
+  currentScreen = name;
+
+  // Header
+  const backBtn = document.getElementById('btn-back');
+  const statsBtn = document.getElementById('btn-stats');
+  const title = document.getElementById('header-title');
+
+  const showBack = !['home','stats'].includes(name) || (name === 'stats');
+  backBtn.style.display = (name !== 'home') ? 'block' : 'none';
+  statsBtn.style.display = (name === 'home' || name === 'topic') ? 'block' : 'none';
+
+  const titles = {home:'瞬間英作文 IELTS', topic:'', study:'学習中', done:'セッション完了', stats:'学習進捗', list:''};
+  if (titles[name] !== undefined) title.textContent = titles[name];
+
+  // Nav
+  document.getElementById('nav-home').classList.toggle('active', name === 'home');
+  document.getElementById('nav-stats').classList.toggle('active', name === 'stats');
+
+  if (name === 'home') renderHome();
+  if (name === 'stats') renderStats();
+}
+
+function goBack() {
+  if (screenHistory.length > 0) {
+    const prev = screenHistory.pop();
+    showScreen(prev, false);
+  } else {
+    showScreen('home', false);
+  }
+}
+
+// ── HOME ──
+function renderHome() {
+  const srs = loadSRS();
+  const grid = document.getElementById('topic-grid');
+  const topics = [...new Set(CARDS.map(c => c.topic))];
+  const topicOrder = ['Technology','Education','The Media','Social Issues','Culture','Environment','Work','Health','Philosophy'];
+  const ordered = topicOrder.filter(t => topics.includes(t)).concat(topics.filter(t => !topicOrder.includes(t)));
+
+  grid.innerHTML = '';
+  for (const topic of ordered) {
+    const cards = CARDS.filter(c => c.topic === topic);
+    const meta = TOPIC_META[topic] || {emoji:'📚', jp:topic};
+    const total = cards.length;
+    const doneCount = cards.filter(c => {
+      const s = getCardState(c.id, srs);
+      return s.repetitions > 0;
+    }).length;
+    const pct = Math.round(doneCount / total * 100);
+    const dueCount = cards.filter(c => isDue(c.id, srs) && getCardState(c.id, srs).dueDate === 0 ? true : isDue(c.id, srs)).length;
+
+    const R = 18, circ = Math.PI * 2 * R;
+    const offset = circ - (pct / 100) * circ;
+
+    const div = document.createElement('div');
+    div.className = 'topic-card';
+    div.onclick = () => openTopic(topic);
+    div.innerHTML = `
+      <div class="topic-icon">${meta.emoji}</div>
+      <div class="topic-info">
+        <div class="topic-name">${meta.jp}</div>
+        <div class="topic-sub">${topic} · ${total}文</div>
+      </div>
+      <div class="topic-progress">
+        <div class="prog-ring">
+          <svg width="44" height="44" viewBox="0 0 44 44">
+            <circle class="prog-bg" cx="22" cy="22" r="${R}" stroke-width="4"/>
+            <circle class="prog-fill" cx="22" cy="22" r="${R}" stroke-width="4"
+              stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/>
+          </svg>
+          <div class="prog-pct">${pct}%</div>
+        </div>
+      </div>`;
+    grid.appendChild(div);
+  }
+}
+
+// ── TOPIC ──
+function openTopic(topic) {
+  currentTopicFilter = topic;
+  currentSubtopicFilter = '';
+  const srs = loadSRS();
+  const meta = TOPIC_META[topic] || {emoji:'📚', jp:topic};
+  const cards = CARDS.filter(c => c.topic === topic);
+  const realDue = cards.filter(c => { const s = getCardState(c.id, srs); return s.dueDate > 0 && Date.now() >= s.dueDate; }).length;
+  const newCount = cards.filter(c => getCardState(c.id, srs).dueDate === 0).length;
+  const dueLabel = realDue > 0 ? `復習${realDue}` : '' + (newCount > 0 ? (realDue > 0 ? ` 新規${newCount}` : `新規${newCount}`) : '');
+
+  document.getElementById('topic-title').textContent = meta.emoji + ' ' + meta.jp;
+  document.getElementById('topic-desc').textContent = topic + ' — ' + cards.length + '文';
+  document.getElementById('header-title').textContent = meta.jp;
+  document.getElementById('study-all-count').textContent = cards.length + '文';
+  document.getElementById('study-all-count2').textContent = cards.length + '文';
+  document.getElementById('study-due-count').textContent = dueLabel || '0文';
+
+  // Grammar
+  const relCards = cards.filter(c => c.grammarTags.includes('relative_pronoun'));
+  const partCards = cards.filter(c => c.grammarTags.includes('participial'));
+  const gramSec = document.getElementById('grammar-section');
+  if (relCards.length > 0 || partCards.length > 0) {
+    gramSec.style.display = 'block';
+    document.getElementById('count-rel').textContent = '関係代名詞 ' + relCards.length + '文';
+    document.getElementById('count-part').textContent = '分詞構文 ' + partCards.length + '文';
+  } else {
+    gramSec.style.display = 'none';
+  }
+
+  // Subtopics
+  const subtopics = [...new Set(cards.map(c => c.subtopic))].filter(Boolean).sort();
+  const listEl = document.getElementById('subtopic-list');
+  listEl.innerHTML = '';
+  for (const sub of subtopics) {
+    const subCards = cards.filter(c => c.subtopic === sub);
+    const subDue = subCards.filter(c => { const s = getCardState(c.id, srs); return s.dueDate > 0 && Date.now() >= s.dueDate; }).length;
+    const div = document.createElement('div');
+    div.className = 'subtopic-item';
+    div.style.cursor = 'default';
+    const subEsc = sub.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const topicEsc = topic.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    div.innerHTML = `
+      <div class="subtopic-name" style="flex:1">${sub}</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${subDue > 0 ? `<div class="subtopic-due">復習 ${subDue}</div>` : ''}
+        <button onclick="openListViewSub('${topicEsc}','${subEsc}');event.stopPropagation()"
+          style="background:var(--gray-100);border:none;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap">📋 一覧</button>
+        <button onclick="startSubtopic('${topicEsc}','${subEsc}');event.stopPropagation()"
+          style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap">⚡ テスト</button>
+      </div>`;
+    listEl.appendChild(div);
+  }
+
+  showScreen('topic');
+}
+
+function startStudy() {
+  const srs = loadSRS();
+  const cards = CARDS.filter(c => c.topic === currentTopicFilter);
+  launchSession(cards, srs, 'all', currentTopicFilter, 'すべて');
+}
+
+function startDueOnly() {
+  const srs = loadSRS();
+  const cards = CARDS.filter(c => c.topic === currentTopicFilter);
+  launchSession(cards, srs, 'due', currentTopicFilter, '復習');
+}
+
+function startSubtopic(topic, sub) {
+  currentSubtopicFilter = sub;
+  const srs = loadSRS();
+  const cards = CARDS.filter(c => c.topic === topic && c.subtopic === sub);
+  launchSession(cards, srs, 'all', topic, sub);
+}
+
+function startGrammar(tag) {
+  const srs = loadSRS();
+  const cards = CARDS.filter(c => c.topic === currentTopicFilter && c.grammarTags.includes(tag));
+  const label = tag === 'relative_pronoun' ? '関係代名詞' : '分詞構文';
+  launchSession(cards, srs, 'all', currentTopicFilter, label, tag);
+}
+
+function launchSession(cards, srs, mode, topic, subLabel, grammarTag) {
+  const deck = buildStudyDeck(cards, srs, mode);
+  if (deck.length === 0) {
+    alert('学習するカードがありません。すべて習得済みか、まだ復習時期ではありません。');
+    return;
+  }
+  sessionCards = deck;
+  sessionIdx = 0;
+  sessionSRS = Object.assign({}, srs);
+  sessionStats = {again:0, hard:0, good:0};
+  sessionMode = grammarTag || '';
+  currentTopicFilter = topic;
+
+  document.getElementById('meta-topic').textContent = (TOPIC_META[topic]||{emoji:'📚'}).emoji + ' ' + topic;
+  document.getElementById('meta-sub').textContent = subLabel || '';
+
+  showScreen('study');
+  showCard();
+}
+
+// ── LIST VIEW ──
+let listViewCards = [];
+let listViewTopic = '';
+let listViewSub = '';
+let listENVisible = true;
+
+function openListView() {
+  const cards = CARDS.filter(c => c.topic === currentTopicFilter);
+  _showListView(cards, currentTopicFilter, 'すべて');
+}
+
+function openListViewSub(topic, sub) {
+  const cards = CARDS.filter(c => c.topic === topic && c.subtopic === sub);
+  _showListView(cards, topic, sub);
+}
+
+function _showListView(cards, topic, sub) {
+  listViewCards = cards;
+  listViewTopic = topic;
+  listViewSub = sub;
+  listENVisible = true;
+
+  const meta = TOPIC_META[topic] || {emoji:'📚'};
+  document.getElementById('list-toolbar-label').textContent = meta.emoji + ' ' + sub;
+  document.getElementById('header-title').textContent = sub;
+  document.getElementById('list-toggle-btn').textContent = '英語を隠す';
+
+  const srs = loadSRS();
+  const container = document.getElementById('list-cards');
+  container.innerHTML = '';
+
+  cards.forEach((card, idx) => {
+    const s = getCardState(card.id, srs);
+    const isDone = s.repetitions > 0;
+    const div = document.createElement('div');
+    div.className = 'list-card' + (isDone ? ' checked' : '');
+    div.id = 'lc-' + card.id;
+    const badges = [];
+    if (card.grammarTags.includes('relative_pronoun')) badges.push('<span class="list-badge gram-rel">関係代名詞</span>');
+    if (card.grammarTags.includes('participial')) badges.push('<span class="list-badge gram-part">分詞構文</span>');
+    div.innerHTML = `
+      <div class="list-card-inner">
+        <div class="list-num">${idx + 1}</div>
+        <div class="list-content">
+          <div class="list-jp">${escHtml(card.japanese)}</div>
+          <div class="list-en" id="len-${card.id}">${escHtml(card.english)}</div>
+          ${badges.length ? '<div class="list-badges">' + badges.join('') + '</div>' : ''}
+        </div>
+        <div class="list-check ${isDone ? 'done' : ''}" id="lchk-${card.id}" onclick="toggleCheck(${card.id})">${isDone ? '✓' : ''}</div>
+      </div>`;
+    container.appendChild(div);
+  });
+
+  // Update count on topic screen too
+  document.getElementById('study-all-count2').textContent = cards.length + '文';
+
+  showScreen('list');
+}
+
+function toggleAllEN() {
+  listENVisible = !listENVisible;
+  document.getElementById('list-toggle-btn').textContent = listENVisible ? '英語を隠す' : '英語を表示';
+  document.querySelectorAll('.list-en').forEach(el => {
+    el.classList.toggle('hidden', !listENVisible);
+  });
+}
+
+function toggleCheck(cardId) {
+  const srs = loadSRS();
+  const s = getCardState(cardId, srs);
+  if (s.repetitions > 0) {
+    // unmark
+    srs[cardId] = {interval:1, repetitions:0, easeFactor:2.5, dueDate:0};
+  } else {
+    // mark as seen (light credit: interval=1, repetitions=1)
+    srs[cardId] = {interval:1, repetitions:1, easeFactor:2.5,
+      dueDate: Date.now() + 24*60*60*1000};
+  }
+  saveSRS(srs);
+  const isDone = srs[cardId].repetitions > 0;
+  const chk = document.getElementById('lchk-' + cardId);
+  const card = document.getElementById('lc-' + cardId);
+  chk.className = 'list-check' + (isDone ? ' done' : '');
+  chk.textContent = isDone ? '✓' : '';
+  card.className = 'list-card' + (isDone ? ' checked' : '');
+}
+
+function startFlashFromList() {
+  const srs = loadSRS();
+  launchSession(listViewCards, srs, 'all', listViewTopic, listViewSub);
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── STUDY ──
+function showCard() {
+  if (sessionIdx >= sessionCards.length) {
+    endSession();
+    return;
+  }
+  const card = sessionCards[sessionIdx];
+  const total = sessionCards.length;
+
+  document.getElementById('meta-progress').textContent = (sessionIdx + 1) + ' / ' + total;
+  document.getElementById('progress-bar').style.width = ((sessionIdx / total) * 100) + '%';
+  document.getElementById('card-japanese').textContent = card.japanese;
+  document.getElementById('card-english').style.display = 'none';
+  document.getElementById('reveal-btn').style.display = 'block';
+  document.getElementById('rating-area').style.display = 'none';
+}
+
+function revealAnswer() {
+  const card = sessionCards[sessionIdx];
+  const enEl = document.getElementById('card-english');
+  let enHtml = escHtml(card.english);
+
+  if (sessionMode === 'relative_pronoun') {
+    enHtml = enHtml.replace(/\b(who|whom|whose|which|that)\b/gi, m => `<mark class="rel">${m}</mark>`);
+  }
+  if (sessionMode === 'participial') {
+    // Highlight first -ing word or participial opener
+    enHtml = enHtml.replace(/^([A-Z][a-z]+ing\b[^,<]*)/, m => `<mark class="part">${m}</mark>`);
+    enHtml = enHtml.replace(/(,\s*)([a-z]+ing\b[^,<]*)/g, (m,p1,p2) => p1 + `<mark class="part">${p2}</mark>`);
+  }
+
+  document.getElementById('en-text').innerHTML = enHtml;
+
+  const hints = [];
+  if (card.grammarTags.includes('relative_pronoun')) hints.push('🔵 関係代名詞');
+  if (card.grammarTags.includes('participial')) hints.push('🟢 分詞構文');
+  document.getElementById('hint-text').textContent = hints.join(' · ');
+
+  enEl.style.display = 'block';
+  document.getElementById('reveal-btn').style.display = 'none';
+  document.getElementById('rating-area').style.display = 'flex';
+}
+
+function rate(rating) {
+  const card = sessionCards[sessionIdx];
+  const newState = applyRating(getCardState(card.id, sessionSRS), rating);
+  sessionSRS[card.id] = newState;
+  if (rating === 0) sessionStats.again++;
+  else if (rating === 1) sessionStats.hard++;
+  else sessionStats.good++;
+  sessionIdx++;
+  showCard();
+}
+
+// ── SESSION END ──
+function endSession() {
+  // Persist SRS
+  saveSRS(sessionSRS);
+
+  const total = sessionCards.length;
+  document.getElementById('done-sub').textContent = total + '枚のカードを学習しました！';
+  document.getElementById('done-stats').innerHTML = `
+    <div class="done-stat-row">
+      <span class="done-stat-label">✓ 覚えた (○)</span>
+      <span class="done-stat-val" style="color:var(--green)">${sessionStats.good}枚</span>
+    </div>
+    <div class="done-stat-row">
+      <span class="done-stat-label">△ 難しい</span>
+      <span class="done-stat-val" style="color:var(--yellow)">${sessionStats.hard}枚</span>
+    </div>
+    <div class="done-stat-row">
+      <span class="done-stat-label">✗ もう一度</span>
+      <span class="done-stat-val" style="color:var(--red)">${sessionStats.again}枚</span>
+    </div>`;
+  showScreen('done');
+}
+
+function replaySession() {
+  const srs = loadSRS();
+  sessionIdx = 0;
+  sessionSRS = Object.assign({}, srs);
+  sessionStats = {again:0, hard:0, good:0};
+  showScreen('study');
+  showCard();
+}
+
+// ── STATS ──
+function renderStats() {
+  const srs = loadSRS();
+  const topics = ['Technology','Education','The Media','Social Issues','Culture','Environment','Work','Health','Philosophy'];
+  const el = document.getElementById('stats-content');
+  el.innerHTML = '';
+
+  // Overall summary
+  const total = CARDS.length;
+  const seen = CARDS.filter(c => getCardState(c.id, srs).dueDate > 0).length;
+  const mastered = CARDS.filter(c => getCardState(c.id, srs).repetitions >= 4).length;
+  const due = CARDS.filter(c => isDue(c.id, srs) && getCardState(c.id, srs).dueDate > 0).length;
+
+  el.innerHTML = `
+    <div class="done-stats" style="margin-bottom:20px">
+      <div class="done-stat-row">
+        <span class="done-stat-label">総カード数</span>
+        <span class="done-stat-val">${total}枚</span>
+      </div>
+      <div class="done-stat-row">
+        <span class="done-stat-label">学習済み</span>
+        <span class="done-stat-val">${seen}枚 (${Math.round(seen/total*100)}%)</span>
+      </div>
+      <div class="done-stat-row">
+        <span class="done-stat-label">習得済み (4回以上)</span>
+        <span class="done-stat-val">${mastered}枚</span>
+      </div>
+      <div class="done-stat-row">
+        <span class="done-stat-label">今日の復習</span>
+        <span class="done-stat-val" style="color:var(--blue)">${due}枚</span>
+      </div>
+    </div>`;
+
+  for (const topic of topics) {
+    const tCards = CARDS.filter(c => c.topic === topic);
+    if (!tCards.length) continue;
+    const meta = TOPIC_META[topic] || {emoji:'📚'};
+    const subtopics = [...new Set(tCards.map(c => c.subtopic))].filter(Boolean).sort();
+
+    const div = document.createElement('div');
+    div.className = 'stats-topic';
+    let barsHtml = '';
+    for (const sub of subtopics) {
+      const subCards = tCards.filter(c => c.subtopic === sub);
+      const learned = subCards.filter(c => getCardState(c.id, srs).dueDate > 0).length;
+      const pct = Math.round(learned / subCards.length * 100);
+      barsHtml += `
+        <div class="stats-bar-row">
+          <div class="stats-bar-label" title="${sub}">${sub}</div>
+          <div class="stats-bar-outer"><div class="stats-bar-inner" style="width:${pct}%"></div></div>
+          <div class="stats-bar-count">${learned}/${subCards.length}</div>
+        </div>`;
+    }
+
+    const tLearned = tCards.filter(c => getCardState(c.id, srs).dueDate > 0).length;
+    div.innerHTML = `
+      <div class="stats-topic-header">
+        <span style="font-size:22px">${meta.emoji}</span>
+        <span class="stats-topic-name">${topic}</span>
+        <span style="font-size:13px;color:var(--gray-500)">${tLearned}/${tCards.length}</span>
+      </div>
+      <div class="stats-bars">${barsHtml}</div>`;
+    el.appendChild(div);
+  }
+}
+
+// ── INIT ──
+renderHome();
+</script>
+</body>
+</html>
