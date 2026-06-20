@@ -259,6 +259,14 @@ mark.part{background:#ECFDF5;color:#065F46;padding:0 2px;border-radius:3px}
 .sp-submit-btn{width:100%;padding:15px;background:var(--blue);color:#fff;border:none;
   border-radius:var(--radius);font-size:16px;font-weight:700;cursor:pointer}
 .sp-submit-btn:disabled{background:var(--gray-300);cursor:not-allowed}
+.sp-input-row{display:flex;gap:8px;align-items:flex-end}
+#sp-textarea{flex:1;min-height:140px}
+.sp-mic-btn{width:52px;height:52px;border-radius:50%;border:2px solid var(--blue);background:#fff;color:var(--blue);font-size:22px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.sp-mic-btn.recording{background:var(--red);border-color:var(--red);color:#fff;animation:pulse 1s ease-in-out infinite}
+.sp-mic-btn:disabled{border-color:var(--gray-300);color:var(--gray-300);cursor:not-allowed;animation:none}
+.sp-mic-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sp-mic-label{font-size:10px;color:var(--gray-500);white-space:nowrap}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 .sp-skip-btn{background:none;border:none;color:var(--gray-500);font-size:13px;
   cursor:pointer;padding:8px;width:100%}
 
@@ -490,7 +498,13 @@ mark.part{background:#ECFDF5;color:#065F46;padding:0 2px;border-radius:3px}
     <div class="sp-q-hint" id="sp-q-hint"></div>
   </div>
   <div class="sp-answer-wrap" id="sp-answer-wrap" style="display:none">
-    <textarea id="sp-textarea" placeholder="英語で答えを入力してください..." oninput="updateCharCount()"></textarea>
+    <div class="sp-input-row">
+      <textarea id="sp-textarea" placeholder="英語で答えを入力、または🎤で音声入力..." oninput="updateCharCount()"></textarea>
+      <div class="sp-mic-wrap">
+        <button class="sp-mic-btn" id="sp-mic-btn" onclick="toggleMic()" title="音声入力">🎤</button>
+        <span class="sp-mic-label" id="sp-mic-label">音声入力</span>
+      </div>
+    </div>
     <div class="sp-char-count"><span id="sp-char-count">0</span>文字</div>
     <button class="sp-submit-btn" id="sp-submit-btn" onclick="submitAnswer()">採点する</button>
     <button class="sp-skip-btn" onclick="skipQuestion()">この問題をスキップ →</button>
@@ -1262,6 +1276,7 @@ function startAnswerPhase() {
   document.getElementById('sp-submit-btn').disabled = false;
   startTimer(ANS_SEC, () => {
     document.getElementById('sp-submit-btn').disabled = true;
+    stopMic();
     submitAnswer();
   });
 }
@@ -1295,6 +1310,81 @@ function updateTimerUI(remaining, total) {
 function updateCharCount() {
   const n = document.getElementById('sp-textarea').value.length;
   document.getElementById('sp-char-count').textContent = n;
+}
+
+// ── VOICE INPUT ──
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isRecording = false;
+
+function initRecognition() {
+  if (!SpeechRecognition) return null;
+  const r = new SpeechRecognition();
+  r.lang = 'en-US';
+  r.continuous = true;
+  r.interimResults = true;
+
+  let finalText = '';
+
+  r.onstart = () => {
+    isRecording = true;
+    finalText = document.getElementById('sp-textarea').value;
+    setMicUI(true);
+  };
+
+  r.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) finalText += (finalText && !finalText.endsWith(' ') ? ' ' : '') + t.trim();
+      else interim = t;
+    }
+    const ta = document.getElementById('sp-textarea');
+    ta.value = finalText + (interim ? ' ' + interim : '');
+    updateCharCount();
+  };
+
+  r.onerror = (e) => {
+    if (e.error !== 'no-speech') {
+      const label = document.getElementById('sp-mic-label');
+      label.textContent = e.error === 'not-allowed' ? '許可必要' : 'エラー';
+      label.style.color = 'var(--red)';
+      setTimeout(() => { label.textContent = '音声入力'; label.style.color = ''; }, 2000);
+    }
+    stopMic();
+  };
+
+  r.onend = () => stopMic();
+  return r;
+}
+
+function toggleMic() {
+  if (!SpeechRecognition) {
+    alert('このブラウザは音声入力に対応していません。\nChrome または Safari をお使いください。');
+    return;
+  }
+  if (isRecording) {
+    stopMic();
+  } else {
+    recognition = initRecognition();
+    if (recognition) recognition.start();
+  }
+}
+
+function stopMic() {
+  isRecording = false;
+  if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
+  setMicUI(false);
+}
+
+function setMicUI(on) {
+  const btn = document.getElementById('sp-mic-btn');
+  const label = document.getElementById('sp-mic-label');
+  if (!btn) return;
+  btn.classList.toggle('recording', on);
+  btn.textContent = on ? '⏹' : '🎤';
+  label.textContent = on ? '停止' : '音声入力';
+  label.style.color = on ? 'var(--red)' : '';
 }
 
 function skipQuestion() {
@@ -1442,10 +1532,12 @@ function renderSpResult(q, answer, result) {
 }
 
 function retryQuestion() {
+  stopMic();
   startPrepPhase();
 }
 
 function nextQuestion() {
+  stopMic();
   showNextSpQuestion();
 }
 
