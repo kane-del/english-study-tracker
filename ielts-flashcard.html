@@ -525,7 +525,7 @@ mark.part{background:#ECFDF5;color:#065F46;padding:0 2px;border-radius:3px}
   <h2>⚙️ 設定</h2>
   <div class="settings-section">
     <label class="settings-label">Gemini APIキー（無料）</label>
-    <div class="settings-desc">スピーキング採点機能に使用します。キーは端末のlocalStorageにのみ保存され、外部に送信されません（採点時にAnthropicのAPIへ送信されます）。</div>
+    <div class="settings-desc">スピーキング採点機能に使用します。キーは端末のlocalStorageにのみ保存され、採点時にGoogleのAPIへのみ送信されます。</div>
     <input class="settings-input" type="password" id="settings-api-key" placeholder="AIzaSy...">
     <button class="settings-save-btn" onclick="saveApiKey()">保存する</button>
     <div id="settings-status" class="settings-status" style="display:none"></div>
@@ -1547,12 +1547,6 @@ function saveApiKey() {
   const statusEl = document.getElementById('settings-status');
   if (!key) {
     statusEl.textContent = 'APIキーを入力してください';
-    statusEl.className = 'settings-status err';
-    statusEl.style.display = 'block';
-    return;
-  }
-  if (!key.startsWith('AIza')) {
-    statusEl.textContent = 'APIキーの形式が正しくありません（AIza で始まる必要があります）';
     statusEl.className = 'settings-status err';
     statusEl.style.display = 'block';
     return;
