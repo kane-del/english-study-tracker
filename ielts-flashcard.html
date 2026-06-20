@@ -206,6 +206,117 @@ mark.part{background:#ECFDF5;color:#065F46;padding:0 2px;border-radius:3px}
 .list-badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
 .list-num{font-size:11px;color:var(--gray-500);flex-shrink:0;margin-top:4px;width:22px;text-align:right}
 
+/* ── SPEAKING ── */
+#screen-speaking{padding:20px}
+#screen-speaking h2{font-size:20px;font-weight:700;margin-bottom:6px}
+.sp-intro{font-size:13px;color:var(--gray-500);margin-bottom:20px;line-height:1.6}
+.sp-category{background:#fff;border-radius:var(--radius);padding:16px 18px;
+  box-shadow:var(--shadow);cursor:pointer;display:flex;align-items:center;gap:14px;
+  margin-bottom:10px;border:2px solid transparent;transition:.15s}
+.sp-category:active{border-color:var(--blue)}
+.sp-cat-icon{font-size:26px;width:42px;text-align:center}
+.sp-cat-info{flex:1}
+.sp-cat-name{font-size:15px;font-weight:700}
+.sp-cat-count{font-size:12px;color:var(--gray-500);margin-top:2px}
+.sp-cat-arrow{font-size:18px;color:var(--gray-300)}
+.sp-api-warning{background:#FEF3C7;border:1px solid #FDE68A;border-radius:var(--radius);
+  padding:14px 16px;margin-bottom:16px;font-size:13px;color:#92400E;line-height:1.6}
+.sp-api-warning a{color:#92400E;font-weight:700;cursor:pointer;text-decoration:underline}
+
+/* Question Screen */
+#screen-sp-q{padding:16px;display:flex;flex-direction:column;min-height:calc(100vh - 60px)}
+.sp-phase-badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;
+  display:inline-block;margin-bottom:12px}
+.sp-phase-prep{background:#FEF3C7;color:#92400E}
+.sp-phase-ans{background:#DCFCE7;color:#166534}
+
+.sp-timer-wrap{display:flex;align-items:center;justify-content:center;margin-bottom:16px;gap:16px}
+.sp-timer-ring{position:relative;width:72px;height:72px;flex-shrink:0}
+.sp-timer-ring svg{transform:rotate(-90deg)}
+.sp-timer-ring circle{fill:none;stroke-width:6}
+.sp-timer-bg{stroke:var(--gray-200)}
+.sp-timer-fill{stroke:var(--blue);transition:stroke-dashoffset .9s linear}
+.sp-timer-fill.urgent{stroke:var(--red)}
+.sp-timer-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:22px;font-weight:800;color:var(--gray-900)}
+.sp-timer-num.urgent{color:var(--red)}
+.sp-timer-label{font-size:13px;color:var(--gray-500);line-height:1.5}
+.sp-timer-label strong{font-size:15px;color:var(--gray-700);display:block}
+
+.sp-q-card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.1);
+  margin-bottom:16px}
+.sp-q-label{font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:8px}
+.sp-q-text{font-size:18px;font-weight:600;line-height:1.6;color:var(--gray-900)}
+.sp-q-hint{font-size:12px;color:var(--gray-500);margin-top:8px}
+
+.sp-answer-wrap{flex:1;display:flex;flex-direction:column;gap:10px}
+#sp-textarea{width:100%;flex:1;min-height:140px;padding:14px;border:2px solid var(--gray-200);
+  border-radius:var(--radius);font-size:15px;line-height:1.7;resize:none;outline:none;
+  font-family:inherit;transition:.15s}
+#sp-textarea:focus{border-color:var(--blue)}
+.sp-char-count{font-size:12px;color:var(--gray-500);text-align:right}
+.sp-submit-btn{width:100%;padding:15px;background:var(--blue);color:#fff;border:none;
+  border-radius:var(--radius);font-size:16px;font-weight:700;cursor:pointer}
+.sp-submit-btn:disabled{background:var(--gray-300);cursor:not-allowed}
+.sp-skip-btn{background:none;border:none;color:var(--gray-500);font-size:13px;
+  cursor:pointer;padding:8px;width:100%}
+
+/* Result Screen */
+#screen-sp-result{padding:16px}
+.sp-score-header{background:#fff;border-radius:var(--radius);padding:20px;
+  box-shadow:var(--shadow);margin-bottom:14px;display:flex;align-items:center;gap:16px}
+.sp-score-circle{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:26px;font-weight:800;flex-shrink:0}
+.score-1,.score-2{background:#FEE2E2;color:var(--red)}
+.score-3{background:#FEF3C7;color:var(--yellow)}
+.score-4,.score-5{background:#DCFCE7;color:var(--green)}
+.sp-score-info h3{font-size:16px;font-weight:700;margin-bottom:4px}
+.sp-score-info p{font-size:13px;color:var(--gray-500)}
+
+.sp-section{background:#fff;border-radius:var(--radius);padding:16px;
+  box-shadow:var(--shadow);margin-bottom:12px}
+.sp-section-title{font-size:12px;font-weight:700;color:var(--gray-500);
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;
+  display:flex;align-items:center;gap:6px}
+.sp-my-answer{font-size:14px;color:var(--gray-700);line-height:1.7;
+  background:var(--gray-100);border-radius:8px;padding:12px}
+.sp-feedback-item{margin-bottom:10px;padding-bottom:10px;
+  border-bottom:1px solid var(--gray-200)}
+.sp-feedback-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.sp-error{color:var(--red);font-size:14px;line-height:1.6}
+.sp-fix{color:var(--green);font-size:14px;line-height:1.6;margin-top:4px}
+.sp-fix::before{content:"→ ";font-weight:700}
+.sp-model{font-size:14px;color:var(--blue-dark);line-height:1.8;font-style:italic}
+.sp-expr-item{font-size:13px;line-height:1.6;margin-bottom:6px;
+  background:var(--blue-light);border-radius:6px;padding:8px 10px;color:var(--gray-900)}
+.sp-loading{text-align:center;padding:32px;color:var(--gray-500)}
+.sp-loading .spin{font-size:32px;display:block;animation:spin 1s linear infinite;margin-bottom:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sp-result-btns{display:flex;gap:10px;margin-top:4px;padding-bottom:16px}
+.sp-result-btns button{flex:1;padding:13px;border:none;border-radius:var(--radius);
+  font-size:14px;font-weight:700;cursor:pointer}
+.sp-btn-next{background:var(--blue);color:#fff}
+.sp-btn-retry{background:#fff;color:var(--gray-900);border:2px solid var(--gray-200) !important}
+
+/* Settings Screen */
+#screen-settings{padding:20px}
+#screen-settings h2{font-size:20px;font-weight:700;margin-bottom:20px}
+.settings-section{background:#fff;border-radius:var(--radius);padding:20px;
+  box-shadow:var(--shadow);margin-bottom:16px}
+.settings-label{font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:6px;display:block}
+.settings-desc{font-size:12px;color:var(--gray-500);margin-bottom:10px;line-height:1.5}
+.settings-input{width:100%;padding:12px 14px;border:2px solid var(--gray-200);
+  border-radius:var(--radius);font-size:14px;outline:none;font-family:monospace;
+  transition:.15s}
+.settings-input:focus{border-color:var(--blue)}
+.settings-save-btn{width:100%;padding:13px;background:var(--blue);color:#fff;
+  border:none;border-radius:var(--radius);font-size:15px;font-weight:700;
+  cursor:pointer;margin-top:12px}
+.settings-status{font-size:13px;margin-top:8px;padding:8px;border-radius:8px;text-align:center}
+.settings-status.ok{background:#DCFCE7;color:#166534}
+.settings-status.err{background:#FEE2E2;color:var(--red)}
+
 /* ── EMPTY STATE ── */
 .empty-state{text-align:center;padding:40px 20px;color:var(--gray-500)}
 .empty-state .emoji{font-size:48px;margin-bottom:12px}
@@ -343,12 +454,93 @@ mark.part{background:#ECFDF5;color:#065F46;padding:0 2px;border-radius:3px}
   <div id="stats-content"></div>
 </div>
 
+<!-- SPEAKING HOME -->
+<div id="screen-speaking" class="screen" style="display:none">
+  <h2>🎤 スピーキング練習</h2>
+  <p class="sp-intro">TOEIC SW Part3/4レベルの質問に答え、AIが文法ミスを指摘・より良い表現を提案します。</p>
+  <div id="sp-api-warning" class="sp-api-warning" style="display:none">
+    ⚠️ Claude APIキーが未設定です。<a onclick="showScreen('settings')">設定画面</a>で入力してください。
+  </div>
+  <div id="sp-cat-list"></div>
+</div>
+
+<!-- SPEAKING QUESTION -->
+<div id="screen-sp-q" class="screen" style="display:none">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+    <span class="sp-phase-badge" id="sp-phase-badge">準備</span>
+    <span style="font-size:13px;color:var(--gray-500)" id="sp-q-num"></span>
+  </div>
+  <div class="sp-timer-wrap">
+    <div class="sp-timer-ring">
+      <svg width="72" height="72" viewBox="0 0 72 72">
+        <circle class="sp-timer-bg" cx="36" cy="36" r="30"/>
+        <circle class="sp-timer-fill" id="sp-timer-circle" cx="36" cy="36" r="30"
+          stroke-dasharray="188.5" stroke-dashoffset="0"/>
+      </svg>
+      <div class="sp-timer-num" id="sp-timer-num">15</div>
+    </div>
+    <div class="sp-timer-label">
+      <strong id="sp-timer-title">準備時間</strong>
+      <span id="sp-timer-hint">質問を読んでください</span>
+    </div>
+  </div>
+  <div class="sp-q-card">
+    <div class="sp-q-label">Question</div>
+    <div class="sp-q-text" id="sp-q-text"></div>
+    <div class="sp-q-hint" id="sp-q-hint"></div>
+  </div>
+  <div class="sp-answer-wrap" id="sp-answer-wrap" style="display:none">
+    <textarea id="sp-textarea" placeholder="英語で答えを入力してください..." oninput="updateCharCount()"></textarea>
+    <div class="sp-char-count"><span id="sp-char-count">0</span>文字</div>
+    <button class="sp-submit-btn" id="sp-submit-btn" onclick="submitAnswer()">採点する</button>
+    <button class="sp-skip-btn" onclick="skipQuestion()">この問題をスキップ →</button>
+  </div>
+</div>
+
+<!-- SPEAKING RESULT -->
+<div id="screen-sp-result" class="screen" style="display:none">
+  <div id="sp-result-content"></div>
+  <div class="sp-result-btns">
+    <button class="sp-result-btns sp-btn-retry" style="flex:1;padding:13px;border-radius:12px;border:2px solid var(--gray-200);background:#fff;font-size:14px;font-weight:700;cursor:pointer" onclick="retryQuestion()">🔄 やり直す</button>
+    <button class="sp-result-btns sp-btn-next" style="flex:1;padding:13px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-size:14px;font-weight:700;cursor:pointer" onclick="nextQuestion()">次の問題 →</button>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="screen-settings" class="screen" style="display:none">
+  <h2>⚙️ 設定</h2>
+  <div class="settings-section">
+    <label class="settings-label">Claude APIキー</label>
+    <div class="settings-desc">スピーキング採点機能に使用します。キーは端末のlocalStorageにのみ保存され、外部に送信されません（採点時にAnthropicのAPIへ送信されます）。</div>
+    <input class="settings-input" type="password" id="settings-api-key" placeholder="sk-ant-api03-...">
+    <button class="settings-save-btn" onclick="saveApiKey()">保存する</button>
+    <div id="settings-status" class="settings-status" style="display:none"></div>
+  </div>
+  <div class="settings-section">
+    <label class="settings-label">学習データのリセット</label>
+    <div class="settings-desc">SRS進捗・スピーキング履歴をすべて削除します。</div>
+    <button onclick="resetAllData()" style="width:100%;padding:13px;background:#FEE2E2;color:var(--red);border:none;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer">データをリセット</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div id="screen-stats" class="screen" style="display:none">
+  <h2>📊 学習進捗</h2>
+  <div id="stats-content"></div>
+</div>
+
 <div id="bottom-nav">
   <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">
     <span class="nav-icon">🏠</span>ホーム
   </button>
+  <button class="nav-btn" id="nav-speaking" onclick="showScreen('speaking')">
+    <span class="nav-icon">🎤</span>スピーキング
+  </button>
   <button class="nav-btn" id="nav-stats" onclick="showScreen('stats')">
     <span class="nav-icon">📊</span>進捗
+  </button>
+  <button class="nav-btn" id="nav-settings" onclick="showScreen('settings')">
+    <span class="nav-icon">⚙️</span>設定
   </button>
 </div>
 
@@ -450,7 +642,7 @@ function showScreen(name, push=true) {
     s.classList.remove('active');
   });
   const el = document.getElementById('screen-' + name);
-  const flexScreens = ['study','list'];
+  const flexScreens = ['study','list','sp-q','sp-result'];
   el.style.display = flexScreens.includes(name) ? 'flex' : 'block';
   el.style.flexDirection = flexScreens.includes(name) ? 'column' : '';
   el.classList.add('active');
@@ -461,19 +653,23 @@ function showScreen(name, push=true) {
   const statsBtn = document.getElementById('btn-stats');
   const title = document.getElementById('header-title');
 
-  const showBack = !['home','stats'].includes(name) || (name === 'stats');
   backBtn.style.display = (name !== 'home') ? 'block' : 'none';
   statsBtn.style.display = (name === 'home' || name === 'topic') ? 'block' : 'none';
 
-  const titles = {home:'瞬間英作文 IELTS', topic:'', study:'学習中', done:'セッション完了', stats:'学習進捗', list:''};
+  const titles = {home:'瞬間英作文 IELTS', topic:'', study:'学習中', done:'セッション完了',
+    stats:'学習進捗', list:'', speaking:'スピーキング練習',
+    'sp-q':'スピーキング練習', 'sp-result':'採点結果', settings:'設定'};
   if (titles[name] !== undefined) title.textContent = titles[name];
 
   // Nav
   document.getElementById('nav-home').classList.toggle('active', name === 'home');
+  document.getElementById('nav-speaking').classList.toggle('active', ['speaking','sp-q','sp-result'].includes(name));
   document.getElementById('nav-stats').classList.toggle('active', name === 'stats');
+  document.getElementById('nav-settings').classList.toggle('active', name === 'settings');
 
   if (name === 'home') renderHome();
   if (name === 'stats') renderStats();
+  if (name === 'speaking') renderSpeakingHome();
 }
 
 function goBack() {
@@ -881,6 +1077,419 @@ function renderStats() {
     el.appendChild(div);
   }
 }
+
+// ── SPEAKING DATA ──
+const SP_QUESTIONS = [
+  // Daily Life
+  {id:'d1',cat:'Daily Life',catJp:'日常生活',catIcon:'🏡',
+   q:'What do you usually do on weekends?',hint:'趣味・活動について具体的に'},
+  {id:'d2',cat:'Daily Life',catJp:'日常生活',catIcon:'🏡',
+   q:'Do you prefer cooking at home or eating out? Why?',hint:'理由を1〜2つ挙げて'},
+  {id:'d3',cat:'Daily Life',catJp:'日常生活',catIcon:'🏡',
+   q:'Describe your morning routine.',hint:'起きてから出発するまでの流れ'},
+  {id:'d4',cat:'Daily Life',catJp:'日常生活',catIcon:'🏡',
+   q:'What is your favorite hobby and how did you get into it?',hint:'きっかけや魅力を話して'},
+  {id:'d5',cat:'Daily Life',catJp:'日常生活',catIcon:'🏡',
+   q:'Do you prefer shopping online or in physical stores? Why?',hint:'便利さ・体験を比較して'},
+  {id:'d6',cat:'Daily Life',catJp:'日常生活',catIcon:'🏡',
+   q:'What type of music do you enjoy and why?',hint:'ジャンルや聴くシーンを添えて'},
+  {id:'d7',cat:'Daily Life',catJp:'日常生活',catIcon:'🏡',
+   q:'How do you usually spend your evenings after work or school?',hint:'リラックス方法などを具体的に'},
+  {id:'d8',cat:'Daily Life',catJp:'日常生活',catIcon:'🏡',
+   q:'Describe a restaurant you really like and explain why.',hint:'料理・雰囲気・理由を'},
+  {id:'d9',cat:'Daily Life',catJp:'日常生活',catIcon:'🏡',
+   q:'Do you prefer city life or living in the countryside? Why?',hint:'メリット・デメリットを比べて'},
+  {id:'d10',cat:'Daily Life',catJp:'日常生活',catIcon:'🏡',
+   q:'What do you do to relax after a stressful day?',hint:'具体的な方法を2つ程度'},
+
+  // Work & Career
+  {id:'w1',cat:'Work & Career',catJp:'仕事・キャリア',catIcon:'💼',
+   q:'Describe your ideal work environment.',hint:'場所・雰囲気・チームについて'},
+  {id:'w2',cat:'Work & Career',catJp:'仕事・キャリア',catIcon:'💼',
+   q:'Do you prefer working alone or in a team? Why?',hint:'それぞれのメリットも触れて'},
+  {id:'w3',cat:'Work & Career',catJp:'仕事・キャリア',catIcon:'💼',
+   q:'Would you rather have a high salary or a job you enjoy? Why?',hint:'自分の価値観を明確に'},
+  {id:'w4',cat:'Work & Career',catJp:'仕事・キャリア',catIcon:'💼',
+   q:'How do you handle stress at work or school?',hint:'具体的な対処法を2つ程度'},
+  {id:'w5',cat:'Work & Career',catJp:'仕事・キャリア',catIcon:'💼',
+   q:'What do you think makes a good leader?',hint:'リーダーシップの資質を具体的に'},
+  {id:'w6',cat:'Work & Career',catJp:'仕事・キャリア',catIcon:'💼',
+   q:'Do you think remote work is beneficial? Why or why not?',hint:'メリット・デメリット両方'},
+  {id:'w7',cat:'Work & Career',catJp:'仕事・キャリア',catIcon:'💼',
+   q:'What skills do you think are most important in today\'s workplace?',hint:'2〜3のスキルと理由を'},
+  {id:'w8',cat:'Work & Career',catJp:'仕事・キャリア',catIcon:'💼',
+   q:'If you could change one thing about your job or school, what would it be?',hint:'具体的な提案を'},
+
+  // Technology
+  {id:'t1',cat:'Technology',catJp:'テクノロジー',catIcon:'💻',
+   q:'How has technology changed your daily life?',hint:'2〜3の具体例を挙げて'},
+  {id:'t2',cat:'Technology',catJp:'テクノロジー',catIcon:'💻',
+   q:'Do you think smartphones are beneficial or harmful to society?',hint:'両面から述べた上で結論を'},
+  {id:'t3',cat:'Technology',catJp:'テクノロジー',catIcon:'💻',
+   q:'Do you think social media has a positive or negative effect on people?',hint:'例を挙げながら立場を明確に'},
+  {id:'t4',cat:'Technology',catJp:'テクノロジー',catIcon:'💻',
+   q:'How do you think AI will change the job market in the future?',hint:'なくなる職種・生まれる職種に触れて'},
+  {id:'t5',cat:'Technology',catJp:'テクノロジー',catIcon:'💻',
+   q:'Do you prefer reading physical books or using digital devices for reading?',hint:'理由を1〜2つ'},
+  {id:'t6',cat:'Technology',catJp:'テクノロジー',catIcon:'💻',
+   q:'Would you trust a self-driving car? Why or why not?',hint:'安全性・信頼性の観点から'},
+  {id:'t7',cat:'Technology',catJp:'テクノロジー',catIcon:'💻',
+   q:'Should children be allowed to use smartphones? From what age?',hint:'教育・安全の面から'},
+
+  // Travel & Culture
+  {id:'tr1',cat:'Travel & Culture',catJp:'旅行・文化',catIcon:'✈️',
+   q:'Describe a place you have visited and would like to visit again.',hint:'場所の魅力を具体的に'},
+  {id:'tr2',cat:'Travel & Culture',catJp:'旅行・文化',catIcon:'✈️',
+   q:'Do you prefer traveling alone or with others? Why?',hint:'それぞれの良さも触れて'},
+  {id:'tr3',cat:'Travel & Culture',catJp:'旅行・文化',catIcon:'✈️',
+   q:'If you could live in another country, where would you choose and why?',hint:'文化・生活・仕事の観点から'},
+  {id:'tr4',cat:'Travel & Culture',catJp:'旅行・文化',catIcon:'✈️',
+   q:'What is the most interesting cultural difference you have noticed?',hint:'具体的なエピソードを添えて'},
+  {id:'tr5',cat:'Travel & Culture',catJp:'旅行・文化',catIcon:'✈️',
+   q:'What local food would you recommend to a foreign visitor to Japan?',hint:'食べ物の特徴・おすすめポイントを'},
+  {id:'tr6',cat:'Travel & Culture',catJp:'旅行・文化',catIcon:'✈️',
+   q:'Do you think international travel is important? Why?',hint:'異文化理解・視野の観点から'},
+  {id:'tr7',cat:'Travel & Culture',catJp:'旅行・文化',catIcon:'✈️',
+   q:'What do you think tourists should know before visiting Japan?',hint:'マナー・文化・おすすめ情報'},
+
+  // Health & Lifestyle
+  {id:'h1',cat:'Health & Lifestyle',catJp:'健康・生活',catIcon:'🏃',
+   q:'How important is exercise to you, and what do you do to stay active?',hint:'頻度・種類・効果を話して'},
+  {id:'h2',cat:'Health & Lifestyle',catJp:'健康・生活',catIcon:'🏃',
+   q:'Do you think it is difficult to maintain a healthy diet? Why?',hint:'具体的な困難と工夫を'},
+  {id:'h3',cat:'Health & Lifestyle',catJp:'健康・生活',catIcon:'🏃',
+   q:'How do you achieve work-life balance in your daily life?',hint:'具体的な方法や工夫を2つ程度'},
+  {id:'h4',cat:'Health & Lifestyle',catJp:'健康・生活',catIcon:'🏃',
+   q:'Do you think mental health is as important as physical health? Why?',hint:'現代社会における重要性を'},
+  {id:'h5',cat:'Health & Lifestyle',catJp:'健康・生活',catIcon:'🏃',
+   q:'How many hours of sleep do you usually get? Is it enough?',hint:'睡眠と生産性・健康の関係も'},
+  {id:'h6',cat:'Health & Lifestyle',catJp:'健康・生活',catIcon:'🏃',
+   q:'What healthy habits would you recommend to someone with a busy schedule?',hint:'実践的なアドバイスを2〜3個'},
+
+  // Environment & Society
+  {id:'e1',cat:'Environment & Society',catJp:'環境・社会',catIcon:'🌍',
+   q:'What do you think is the most serious environmental problem today?',hint:'理由と影響を具体的に'},
+  {id:'e2',cat:'Environment & Society',catJp:'環境・社会',catIcon:'🌍',
+   q:'What can individuals do to help protect the environment?',hint:'日常生活でできる具体的な行動を'},
+  {id:'e3',cat:'Environment & Society',catJp:'環境・社会',catIcon:'🌍',
+   q:'Do you think public transportation should be free? Why or why not?',hint:'費用・環境・利便性の観点から'},
+  {id:'e4',cat:'Environment & Society',catJp:'環境・社会',catIcon:'🌍',
+   q:'What do you think about electric vehicles? Are they the solution to pollution?',hint:'メリット・限界両方に触れて'},
+  {id:'e5',cat:'Environment & Society',catJp:'環境・社会',catIcon:'🌍',
+   q:'Should companies be required by law to use eco-friendly practices?',hint:'企業の責任・経済への影響を'},
+  {id:'e6',cat:'Environment & Society',catJp:'環境・社会',catIcon:'🌍',
+   q:'Do you think younger generations care more about the environment than older ones?',hint:'世代間の違いと理由を'},
+];
+
+const SP_CATS = [...new Map(SP_QUESTIONS.map(q => [q.cat, {cat:q.cat,catJp:q.catJp,catIcon:q.catIcon}])).values()];
+
+// ── SPEAKING STATE ──
+let spCurrentQ = null;
+let spCurrentCat = '';
+let spCatQuestions = [];
+let spQueueIdx = 0;
+let spTimerInterval = null;
+let spTimerSec = 0;
+let spPhase = 'prep'; // 'prep' | 'answer'
+const PREP_SEC = 15;
+const ANS_SEC = 45;
+const CIRC = 2 * Math.PI * 30; // r=30
+
+// ── SPEAKING HOME ──
+function renderSpeakingHome() {
+  const hasKey = !!loadApiKey();
+  document.getElementById('sp-api-warning').style.display = hasKey ? 'none' : 'block';
+  const list = document.getElementById('sp-cat-list');
+  list.innerHTML = '';
+  SP_CATS.forEach(cat => {
+    const qs = SP_QUESTIONS.filter(q => q.cat === cat.cat);
+    const div = document.createElement('div');
+    div.className = 'sp-category';
+    div.onclick = () => startSpeakingCat(cat.cat);
+    div.innerHTML = `
+      <div class="sp-cat-icon">${cat.catIcon}</div>
+      <div class="sp-cat-info">
+        <div class="sp-cat-name">${cat.catJp}</div>
+        <div class="sp-cat-count">${cat.cat} · ${qs.length}問</div>
+      </div>
+      <div class="sp-cat-arrow">›</div>`;
+    list.appendChild(div);
+  });
+}
+
+function startSpeakingCat(cat) {
+  spCurrentCat = cat;
+  spCatQuestions = SP_QUESTIONS.filter(q => q.cat === cat).sort(() => Math.random() - 0.5);
+  spQueueIdx = 0;
+  showNextSpQuestion();
+}
+
+function showNextSpQuestion() {
+  if (spQueueIdx >= spCatQuestions.length) {
+    spQueueIdx = 0; // loop
+    spCatQuestions = spCatQuestions.sort(() => Math.random() - 0.5);
+  }
+  spCurrentQ = spCatQuestions[spQueueIdx];
+  spQueueIdx++;
+  startPrepPhase();
+}
+
+// ── TIMER ──
+function startPrepPhase() {
+  spPhase = 'prep';
+  document.getElementById('sp-phase-badge').textContent = '📖 準備';
+  document.getElementById('sp-phase-badge').className = 'sp-phase-badge sp-phase-prep';
+  document.getElementById('sp-q-num').textContent = `${spCatQuestions.indexOf(spCurrentQ)+1} / ${spCatQuestions.length}`;
+  document.getElementById('sp-q-text').textContent = spCurrentQ.q;
+  document.getElementById('sp-q-hint').textContent = '💡 ' + spCurrentQ.hint;
+  document.getElementById('sp-answer-wrap').style.display = 'none';
+  document.getElementById('sp-timer-title').textContent = '準備時間';
+  document.getElementById('sp-timer-hint').textContent = '質問を読んでください';
+  document.getElementById('sp-textarea').value = '';
+  document.getElementById('sp-char-count').textContent = '0';
+  showScreen('sp-q');
+  startTimer(PREP_SEC, () => startAnswerPhase());
+}
+
+function startAnswerPhase() {
+  spPhase = 'answer';
+  document.getElementById('sp-phase-badge').textContent = '🎤 回答';
+  document.getElementById('sp-phase-badge').className = 'sp-phase-badge sp-phase-ans';
+  document.getElementById('sp-answer-wrap').style.display = 'flex';
+  document.getElementById('sp-timer-title').textContent = '回答時間';
+  document.getElementById('sp-timer-hint').textContent = '英語で答えを入力';
+  document.getElementById('sp-textarea').focus();
+  document.getElementById('sp-submit-btn').disabled = false;
+  startTimer(ANS_SEC, () => {
+    document.getElementById('sp-submit-btn').disabled = true;
+    submitAnswer();
+  });
+}
+
+function startTimer(seconds, onEnd) {
+  clearInterval(spTimerInterval);
+  spTimerSec = seconds;
+  updateTimerUI(seconds, seconds);
+  spTimerInterval = setInterval(() => {
+    spTimerSec--;
+    updateTimerUI(spTimerSec, seconds);
+    if (spTimerSec <= 0) {
+      clearInterval(spTimerInterval);
+      onEnd();
+    }
+  }, 1000);
+}
+
+function updateTimerUI(remaining, total) {
+  const pct = remaining / total;
+  const offset = CIRC * (1 - pct);
+  const circle = document.getElementById('sp-timer-circle');
+  const numEl = document.getElementById('sp-timer-num');
+  circle.style.strokeDashoffset = offset;
+  numEl.textContent = remaining;
+  const urgent = remaining <= 10;
+  circle.classList.toggle('urgent', urgent);
+  numEl.classList.toggle('urgent', urgent);
+}
+
+function updateCharCount() {
+  const n = document.getElementById('sp-textarea').value.length;
+  document.getElementById('sp-char-count').textContent = n;
+}
+
+function skipQuestion() {
+  clearInterval(spTimerInterval);
+  showNextSpQuestion();
+}
+
+// ── GRADING ──
+async function submitAnswer() {
+  clearInterval(spTimerInterval);
+  const answer = document.getElementById('sp-textarea').value.trim();
+  const q = spCurrentQ;
+
+  showScreen('sp-result');
+  document.getElementById('sp-result-content').innerHTML = `
+    <div class="sp-loading"><span class="spin">⏳</span>AIが採点中…</div>`;
+
+  const apiKey = loadApiKey();
+  if (!apiKey) {
+    document.getElementById('sp-result-content').innerHTML = `
+      <div class="sp-section">
+        <div class="sp-section-title">⚠️ APIキー未設定</div>
+        <p style="font-size:14px;color:var(--gray-700);line-height:1.7">
+          設定画面でClaude APIキーを入力すると自動採点が使えます。<br>
+          <a onclick="showScreen('settings')" style="color:var(--blue);cursor:pointer">⚙️ 設定へ</a>
+        </p>
+      </div>
+      <div class="sp-section">
+        <div class="sp-section-title">📝 あなたの回答</div>
+        <div class="sp-my-answer">${escHtml(answer || '（未入力）')}</div>
+      </div>`;
+    return;
+  }
+
+  try {
+    const prompt = `あなたは英語のTOEICスピーキングテストの採点官です。以下の質問に対する学習者の回答を評価してください。
+
+【質問】${q.q}
+【学習者の回答】${answer || '（未入力）'}
+
+以下のJSON形式のみで回答してください（他のテキストは不要）：
+{
+  "score": 1〜5の整数,
+  "score_reason": "採点理由（日本語で1文）",
+  "grammar_errors": [
+    {"error": "誤った表現", "fix": "正しい表現", "note": "説明（日本語）"}
+  ],
+  "better_expressions": [
+    {"phrase": "より自然な英語表現", "jp": "日本語での意味"}
+  ],
+  "model_answer": "模範解答（英語・2〜3文）",
+  "model_answer_jp": "模範解答の日本語訳"
+}
+
+grammar_errorsは実際のエラーがある場合のみ含めてください。better_expressionsは2〜3個提案してください。`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-ipc': 'true',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || 'API error');
+    }
+
+    const data = await res.json();
+    const text = data.content[0].text;
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Invalid response format');
+    const result = JSON.parse(jsonMatch[0]);
+    renderSpResult(q, answer, result);
+
+  } catch(e) {
+    document.getElementById('sp-result-content').innerHTML = `
+      <div class="sp-section">
+        <div class="sp-section-title">❌ エラー</div>
+        <p style="font-size:14px;color:var(--red);line-height:1.7">${escHtml(e.message)}</p>
+        <p style="font-size:13px;color:var(--gray-500);margin-top:8px">APIキーを確認してください。</p>
+      </div>
+      <div class="sp-section">
+        <div class="sp-section-title">📝 あなたの回答</div>
+        <div class="sp-my-answer">${escHtml(answer || '（未入力）')}</div>
+      </div>`;
+  }
+}
+
+function renderSpResult(q, answer, result) {
+  const score = result.score || 3;
+  const labels = {1:'要練習',2:'もう少し',3:'良い',4:'上手い',5:'完璧！'};
+  const errorsHtml = (result.grammar_errors || []).length > 0
+    ? (result.grammar_errors.map(e => `
+        <div class="sp-feedback-item">
+          <div class="sp-error">❌ "${escHtml(e.error)}"</div>
+          <div class="sp-fix">"${escHtml(e.fix)}"</div>
+          <div style="font-size:12px;color:var(--gray-500);margin-top:4px">${escHtml(e.note)}</div>
+        </div>`).join(''))
+    : '<div style="color:var(--green);font-size:14px">✅ 文法エラーなし！</div>';
+
+  const exprsHtml = (result.better_expressions || []).map(ex => `
+    <div class="sp-expr-item">
+      <strong>${escHtml(ex.phrase)}</strong>
+      <span style="color:var(--gray-500)"> — ${escHtml(ex.jp)}</span>
+    </div>`).join('');
+
+  document.getElementById('sp-result-content').innerHTML = `
+    <div class="sp-score-header">
+      <div class="sp-score-circle score-${score}">${score}</div>
+      <div class="sp-score-info">
+        <h3>${labels[score]}</h3>
+        <p>${escHtml(result.score_reason || '')}</p>
+      </div>
+    </div>
+    <div class="sp-section">
+      <div class="sp-section-title">❓ 質問</div>
+      <div style="font-size:14px;font-weight:600;color:var(--gray-900)">${escHtml(q.q)}</div>
+    </div>
+    <div class="sp-section">
+      <div class="sp-section-title">📝 あなたの回答</div>
+      <div class="sp-my-answer">${escHtml(answer || '（未入力）')}</div>
+    </div>
+    <div class="sp-section">
+      <div class="sp-section-title">🔍 文法チェック</div>
+      ${errorsHtml}
+    </div>
+    ${exprsHtml ? `<div class="sp-section">
+      <div class="sp-section-title">💡 より良い表現</div>
+      ${exprsHtml}
+    </div>` : ''}
+    <div class="sp-section">
+      <div class="sp-section-title">🌟 模範解答</div>
+      <div class="sp-model">${escHtml(result.model_answer || '')}</div>
+      <div style="font-size:12px;color:var(--gray-500);margin-top:8px;line-height:1.6">${escHtml(result.model_answer_jp || '')}</div>
+    </div>`;
+}
+
+function retryQuestion() {
+  startPrepPhase();
+}
+
+function nextQuestion() {
+  showNextSpQuestion();
+}
+
+// ── SETTINGS ──
+const API_KEY_STORAGE = 'sp_api_key';
+function loadApiKey() { return localStorage.getItem(API_KEY_STORAGE) || ''; }
+
+function saveApiKey() {
+  const key = document.getElementById('settings-api-key').value.trim();
+  const statusEl = document.getElementById('settings-status');
+  if (!key) {
+    statusEl.textContent = 'APIキーを入力してください';
+    statusEl.className = 'settings-status err';
+    statusEl.style.display = 'block';
+    return;
+  }
+  if (!key.startsWith('sk-ant-')) {
+    statusEl.textContent = 'APIキーの形式が正しくありません（sk-ant- で始まる必要があります）';
+    statusEl.className = 'settings-status err';
+    statusEl.style.display = 'block';
+    return;
+  }
+  localStorage.setItem(API_KEY_STORAGE, key);
+  document.getElementById('settings-api-key').value = '';
+  statusEl.textContent = '✅ 保存しました';
+  statusEl.className = 'settings-status ok';
+  statusEl.style.display = 'block';
+  setTimeout(() => statusEl.style.display = 'none', 2000);
+}
+
+function resetAllData() {
+  if (!confirm('学習データをすべてリセットしますか？')) return;
+  const apiKey = loadApiKey();
+  localStorage.clear();
+  if (apiKey) localStorage.setItem(API_KEY_STORAGE, apiKey);
+  alert('リセットしました。');
+  showScreen('home');
+}
+
+// Load saved key into field
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = loadApiKey();
+  if (saved) document.getElementById('settings-api-key').placeholder = '設定済み（変更する場合は新しいキーを入力）';
+});
 
 // ── INIT ──
 renderHome();
