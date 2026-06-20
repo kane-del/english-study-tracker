@@ -467,7 +467,7 @@ mark.part{background:#ECFDF5;color:#065F46;padding:0 2px;border-radius:3px}
   <h2>🎤 スピーキング練習</h2>
   <p class="sp-intro">TOEIC SW Part3/4レベルの質問に答え、AIが文法ミスを指摘・より良い表現を提案します。</p>
   <div id="sp-api-warning" class="sp-api-warning" style="display:none">
-    ⚠️ Claude APIキーが未設定です。<a onclick="showScreen('settings')">設定画面</a>で入力してください。
+    ⚠️ Gemini APIキーが未設定です。<a onclick="showScreen('settings')">設定画面</a>で入力してください。
   </div>
   <div id="sp-cat-list"></div>
 </div>
@@ -524,9 +524,9 @@ mark.part{background:#ECFDF5;color:#065F46;padding:0 2px;border-radius:3px}
 <div id="screen-settings" class="screen" style="display:none">
   <h2>⚙️ 設定</h2>
   <div class="settings-section">
-    <label class="settings-label">Claude APIキー</label>
+    <label class="settings-label">Gemini APIキー（無料）</label>
     <div class="settings-desc">スピーキング採点機能に使用します。キーは端末のlocalStorageにのみ保存され、外部に送信されません（採点時にAnthropicのAPIへ送信されます）。</div>
-    <input class="settings-input" type="password" id="settings-api-key" placeholder="sk-ant-api03-...">
+    <input class="settings-input" type="password" id="settings-api-key" placeholder="AIzaSy...">
     <button class="settings-save-btn" onclick="saveApiKey()">保存する</button>
     <div id="settings-status" class="settings-status" style="display:none"></div>
   </div>
@@ -1408,7 +1408,7 @@ async function submitAnswer() {
       <div class="sp-section">
         <div class="sp-section-title">⚠️ APIキー未設定</div>
         <p style="font-size:14px;color:var(--gray-700);line-height:1.7">
-          設定画面でClaude APIキーを入力すると自動採点が使えます。<br>
+          設定画面でGemini APIキー（無料）を入力すると自動採点が使えます。<br>
           <a onclick="showScreen('settings')" style="color:var(--blue);cursor:pointer">⚙️ 設定へ</a>
         </p>
       </div>
@@ -1441,20 +1441,17 @@ async function submitAnswer() {
 
 grammar_errorsは実際のエラーがある場合のみ含めてください。better_expressionsは2〜3個提案してください。`;
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-ipc': 'true',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        messages: [{role:'user', content: prompt}]
-      })
-    });
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({
+          contents: [{parts: [{text: prompt}]}],
+          generationConfig: {maxOutputTokens: 1024, temperature: 0.3}
+        })
+      }
+    );
 
     if (!res.ok) {
       const err = await res.json();
@@ -1462,7 +1459,7 @@ grammar_errorsは実際のエラーがある場合のみ含めてください。
     }
 
     const data = await res.json();
-    const text = data.content[0].text;
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('Invalid response format');
     const result = JSON.parse(jsonMatch[0]);
@@ -1554,8 +1551,8 @@ function saveApiKey() {
     statusEl.style.display = 'block';
     return;
   }
-  if (!key.startsWith('sk-ant-')) {
-    statusEl.textContent = 'APIキーの形式が正しくありません（sk-ant- で始まる必要があります）';
+  if (!key.startsWith('AIza')) {
+    statusEl.textContent = 'APIキーの形式が正しくありません（AIza で始まる必要があります）';
     statusEl.className = 'settings-status err';
     statusEl.style.display = 'block';
     return;
@@ -1580,7 +1577,7 @@ function resetAllData() {
 // Load saved key into field
 document.addEventListener('DOMContentLoaded', () => {
   const saved = loadApiKey();
-  if (saved) document.getElementById('settings-api-key').placeholder = '設定済み（変更する場合は新しいキーを入力）';
+  if (saved) document.getElementById('settings-api-key').placeholder = '設定済み ✅（変更する場合は新しいキーを入力）';
 });
 
 // ── INIT ──
