@@ -151,6 +151,10 @@
     .history-fill { height: 100%; border-radius: 4px; }
     .history-time { font-size: 11px; color: var(--sub); width: 40px; text-align: right; }
     .no-data { text-align: center; color: var(--sub); padding: 32px 0; font-size: 14px; }
+    .avg-row { display: flex; gap: 12px; }
+    .avg-item { flex: 1; background: var(--bg); border-radius: 10px; padding: 14px; text-align: center; }
+    .avg-label { font-size: 12px; color: var(--sub); font-weight: 600; margin-bottom: 6px; }
+    .avg-value { font-size: 20px; font-weight: 800; color: var(--accent); }
 
     /* ── Settings ── */
     .setting-row {
@@ -275,6 +279,19 @@
     <button class="period-btn" id="btn-month" onclick="setPeriod('month')">月間</button>
   </div>
   <div class="card">
+    <div class="section-title">平均学習時間（1日あたり）</div>
+    <div class="avg-row">
+      <div class="avg-item">
+        <div class="avg-label">週平均（7日）</div>
+        <div class="avg-value" id="avg-week">—</div>
+      </div>
+      <div class="avg-item">
+        <div class="avg-label">月平均（30日）</div>
+        <div class="avg-value" id="avg-month">—</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
     <div class="section-title">カテゴリ別学習時間（分）</div>
     <div class="legend" id="chart-legend"></div>
     <div class="chart-wrap"><canvas id="main-chart"></canvas></div>
@@ -370,7 +387,7 @@ function saveGoalsLS()  { localStorage.setItem('es_goals',    JSON.stringify(goa
 
 /* ─── Helpers ─── */
 function today() {
-  const d = new Date();
+  const d = new Date(Date.now() - 4 * 60 * 60 * 1000);
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 }
 function pad(n) { return String(n).padStart(2,'0'); }
@@ -573,6 +590,18 @@ function buildDataMap(dates) {
 function renderStats() {
   const dates = dateRange();
   const { map, allCats } = buildDataMap(dates);
+
+  const makeDays = n => Array.from({length: n}, (_, i) => {
+    const d = new Date(Date.now() - 4 * 60 * 60 * 1000);
+    d.setDate(d.getDate() - i);
+    return d.toISOString().split('T')[0];
+  });
+  const week7  = new Set(makeDays(7));
+  const month30 = new Set(makeDays(30));
+  const weekTotal  = sessions.filter(s => week7.has(s.date)).reduce((a, s) => a + s.duration, 0);
+  const monthTotal = sessions.filter(s => month30.has(s.date)).reduce((a, s) => a + s.duration, 0);
+  document.getElementById('avg-week').textContent  = fmtMin(Math.round(weekTotal / 7));
+  document.getElementById('avg-month').textContent = fmtMin(Math.round(monthTotal / 30));
 
   document.getElementById('chart-legend').innerHTML = allCats.map(c => `
     <div class="legend-item">
