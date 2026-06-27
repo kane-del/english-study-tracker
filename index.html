@@ -237,6 +237,37 @@
     }
     .danger-btn:active { background: #FF4757; color: white; }
 
+    /* ── Edit Panel ── */
+    .edit-time-btn {
+      border: none; background: none; cursor: pointer;
+      font-size: 15px; padding: 2px 6px; border-radius: 6px;
+      color: var(--sub); transition: color 0.15s, background 0.15s; line-height: 1;
+    }
+    .edit-time-btn:hover { color: var(--accent); background: var(--bg); }
+    .edit-panel {
+      background: var(--bg); border-radius: 12px;
+      padding: 10px 12px; margin-bottom: 10px; display: none;
+    }
+    .edit-panel-label { font-size: 12px; color: var(--sub); font-weight: 600; margin-bottom: 8px; }
+    .edit-panel-inner { display: flex; align-items: center; gap: 8px; }
+    .edit-input {
+      width: 80px; padding: 8px 10px; border: 2px solid var(--border);
+      border-radius: 10px; font-size: 16px; text-align: center; outline: none;
+      font-weight: 700; transition: border-color 0.2s;
+    }
+    .edit-input:focus { border-color: var(--accent); }
+    .edit-unit { font-size: 12px; color: var(--sub); }
+    .edit-save-btn {
+      border: none; border-radius: 9px; padding: 8px 14px;
+      font-size: 13px; font-weight: 700; cursor: pointer; color: white;
+    }
+    .edit-save-btn:active { opacity: 0.8; }
+    .edit-cancel-btn {
+      border: none; background: none; cursor: pointer;
+      font-size: 20px; color: var(--sub); padding: 2px 6px; border-radius: 8px; line-height: 1;
+    }
+    .edit-cancel-btn:hover { color: #FF4757; }
+
     /* ── Toast ── */
     .toast {
       position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%);
@@ -333,6 +364,15 @@
       すべてのデータをリセット
     </button>
   </div>
+
+  <!-- App update -->
+  <div class="card">
+    <div class="section-title">アプリ更新</div>
+    <button class="save-btn" onclick="forceUpdate()">🔄 最新バージョンに更新</button>
+    <div style="font-size:12px;color:var(--sub);margin-top:8px;line-height:1.6;">
+      ボタンが表示されない・動かないときはタップしてください。
+    </div>
+  </div>
 </div>
 
 <nav class="nav">
@@ -384,6 +424,10 @@ function load() {
 function saveCats()     { localStorage.setItem('es_cats',     JSON.stringify(CATS));     }
 function saveSessions() { localStorage.setItem('es_sessions', JSON.stringify(sessions)); }
 function saveGoalsLS()  { localStorage.setItem('es_goals',    JSON.stringify(goals));    }
+function saveRunning()  {
+  if (running) localStorage.setItem('es_running', JSON.stringify(running));
+  else localStorage.removeItem('es_running');
+}
 
 /* ─── Helpers ─── */
 function today() {
@@ -444,6 +488,18 @@ function init() {
   buildCatCards();
   renderCatMgmt();
   buildGoalRows();
+
+  const savedRunning = JSON.parse(localStorage.getItem('es_running') || 'null');
+  if (savedRunning && CATS.some(c => c.key === savedRunning.key)) {
+    const elapsed = Math.floor((Date.now() - savedRunning.startMs) / 1000);
+    if (elapsed < 8 * 3600) {
+      running = savedRunning;
+      applyRunningUI(savedRunning.key);
+    } else {
+      localStorage.removeItem('es_running');
+    }
+  }
+
   updateTimerPage();
 }
 
@@ -467,7 +523,25 @@ function buildCatCards() {
           <span class="cat-name">${esc(c.key)}</span>
           <span class="running-dot" id="dot-${esc(c.key)}"></span>
         </div>
-        <span class="cat-today-label" id="today-lbl-${esc(c.key)}">今日: 0分</span>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span class="cat-today-label" id="today-lbl-${esc(c.key)}">今日: 0分</span>
+          <button class="edit-time-btn" data-key="${esc(c.key)}"
+            onclick="openEditPanel(this.dataset.key)" title="時間を修正">✏️</button>
+        </div>
+      </div>
+      <div class="edit-panel" id="edit-panel-${esc(c.key)}">
+        <div class="edit-panel-label">今日の合計時間を設定</div>
+        <div class="edit-panel-inner">
+          <input type="number" class="edit-input" id="edit-input-${esc(c.key)}"
+            min="0" max="1440" placeholder="0"
+            style="border-color:${c.color};">
+          <span class="edit-unit">分</span>
+          <button class="edit-save-btn" data-key="${esc(c.key)}"
+            style="background:${c.color};"
+            onclick="saveAdjustedTime(this.dataset.key)">保存</button>
+          <button class="edit-cancel-btn" data-key="${esc(c.key)}"
+            onclick="closeEditPanel(this.dataset.key)">×</button>
+        </div>
       </div>
       <div class="session-timer" id="sess-${esc(c.key)}" style="color:${c.color};">0:00</div>
       <div class="progress-row">
@@ -514,11 +588,17 @@ function toggleTimer(key) {
 
 function startTimer(key) {
   running = { key, startMs: Date.now() };
+  saveRunning();
+  applyRunningUI(key);
+}
+
+function applyRunningUI(key) {
   const k = esc(key);
   document.getElementById(`card-${k}`).classList.add('running');
   document.getElementById(`dot-${k}`).style.display = 'block';
   document.getElementById(`btn-${k}`).textContent   = 'ストップ';
   document.getElementById(`btn-${k}`).classList.add('stop');
+  clearInterval(tickId);
   tickId = setInterval(() => {
     document.getElementById(`sess-${k}`).textContent = fmtTime(runningElapsed());
     updateTimerPage();
@@ -536,6 +616,7 @@ function stopTimer() {
     showToast(`${fmtMin(elapsed)} 記録しました ✓`);
   }
   running = null;
+  saveRunning();
   const k = esc(key);
   document.getElementById(`card-${k}`).classList.remove('running');
   document.getElementById(`dot-${k}`).style.display = 'none';
@@ -544,6 +625,41 @@ function stopTimer() {
   document.getElementById(`btn-${k}`).classList.remove('stop');
   updateTimerPage();
   updateHeader();
+}
+
+/* ─── Edit Panel ─── */
+function openEditPanel(key) {
+  document.querySelectorAll('.edit-panel').forEach(p => p.style.display = 'none');
+  const k = esc(key);
+  const currentSec = todayTotal(key) + (running && running.key === key ? runningElapsed() : 0);
+  document.getElementById(`edit-input-${k}`).value = Math.round(currentSec / 60);
+  document.getElementById(`edit-panel-${k}`).style.display = 'block';
+  document.getElementById(`edit-input-${k}`).focus();
+  document.getElementById(`edit-input-${k}`).select();
+}
+
+function saveAdjustedTime(key) {
+  const k = esc(key);
+  const raw = document.getElementById(`edit-input-${k}`).value;
+  const newMin = parseInt(raw);
+  if (isNaN(newMin) || newMin < 0) { showToast('正しい分数を入力してください'); return; }
+  const newSec = newMin * 60;
+  const t = today();
+
+  if (running && running.key === key) stopTimer();
+
+  sessions = sessions.filter(s => !(s.date === t && s.category === key));
+  if (newSec > 0) sessions.push({ date: t, category: key, duration: newSec });
+  saveSessions();
+
+  document.getElementById(`edit-panel-${k}`).style.display = 'none';
+  updateTimerPage();
+  updateHeader();
+  showToast(`${key}: ${fmtMin(newSec)} に修正しました ✓`);
+}
+
+function closeEditPanel(key) {
+  document.getElementById(`edit-panel-${esc(key)}`).style.display = 'none';
 }
 
 /* ─── Page Switching ─── */
@@ -774,6 +890,19 @@ function showToast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ─── Force Update ─── */
+async function forceUpdate() {
+  if ('caches' in window) {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => caches.delete(k)));
+  }
+  if ('serviceWorker' in navigator) {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r => r.unregister()));
+  }
+  location.reload(true);
 }
 
 /* ─── Enter key for add form ─── */
